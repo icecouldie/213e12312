@@ -1,95 +1,35 @@
 const fs = require('fs');
-const puppeteer = require('puppeteer');
 
-async function scrapeElvebredd() {
-  console.log('🚀 Запуск чистого парсера Elvebredd...');
-  
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
-
-  const page = await browser.newPage();
-  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+async function updateData() {
+  console.log('🚀 Синхронизация базы данных питомцев ElveTrack...');
 
   try {
-    // Переходим на страницу со списком цен, где нет лишних чатов и профилей
-    console.log('📄 Переходим на elvebredd.com...');
-    await page.goto('https://elvebredd.com/', { 
-      waitUntil: 'domcontentloaded', 
-      timeout: 60000 
-    });
+    // Читаем список питомцев из твоего index.html, где гарантированно нет мусора и ников
+    const htmlContent = fs.readFileSync('./index.html', 'utf-8');
+    const match = htmlContent.match(/const PETS_DATABASE = \[([\s\S]*?)\];/);
+    
+    if (!match || !match[1]) {
+      throw new Error('Не удалось найти PETS_DATABASE в index.html');
+    }
 
-    console.log('⏳ Ждем прогрузку элементов...');
-    await new Promise(r => setTimeout(r, 7000));
+    const jsonString = '[' + match[1].replace(/,\s*([\]}])/g, '$1') + ']';
+    const petsData = eval('(' + jsonString + ')');
 
-    const scrapedData = await page.evaluate(() => {
-      const pets = [];
-      
-      // Ищем блоки, которые содержат цены на элементы
-      const elements = document.querySelectorAll('div');
-      
-      elements.forEach(el => {
-        const text = el.innerText;
-        if (text && text.includes('\n')) {
-          const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-          
-          if (lines.length >= 2) {
-            for (let i = 0; i < lines.length; i++) {
-              const val = parseFloat(lines[i].replace(/[^0-9.]/g, ''));
-              
-              if (!isNaN(val) && val > 0 && val < 10000) {
-                const name = lines[i - 1];
-                
-                // СТРОГИЙ ЧЕРНЫЙ СПИСОК: отсекаем абсолютно весь мусор интерфейса
-                const isBadName = !name || 
-                  name.length < 2 || 
-                  name.length > 35 ||
-                  name.toLowerCase() === 'you' ||
-                  name.toLowerCase() === 'since 2020' ||
-                  name.toLowerCase() === 'world records' ||
-                  name.includes('ago') || 
-                  name.includes('?') || 
-                  name.includes('Value') ||
-                  name.includes('Demand') ||
-                  name.includes('Trade') ||
-                  /^\d/.test(name);
+    if (Array.isArray(petsData) && petsData.length > 0) {
+      // Сортируем по убыванию базовой стоимости
+      petsData.sort((a, b) => b.base - a.base);
 
-                if (!isBadName) {
-                  pets.push({
-                    name: name,
-                    image: `image pets/${name}.png`,
-                    tier: "Legendary",
-                    base: val,
-                    reg: val.toFixed(2),
-                    neon: (val * 3.9).toFixed(2),
-                    mega: (val * 15.8).toFixed(2),
-                    demand: "High Demand 🔥"
-                  });
-                  break;
-                }
-              }
-            }
-          }
-        }
-      });
-
-      return Array.from(new Map(pets.map(p => [p.name, p])).values());
-    });
-
-    if (scrapedData.length > 0) {
-      scrapedData.sort((a, b) => b.base - a.base);
-      fs.writeFileSync('./pets-data.json', JSON.stringify(scrapedData, null, 2), 'utf-8');
-      console.log(`✅ Успешно сохранено чистых позиций: ${scrapedData.length}`);
+      // Сохраняем чистый файл для сайта
+      fs.writeFileSync('./pets-data.json', JSON.stringify(petsData, null, 2), 'utf-8');
+      console.log(`✅ База данных успешно обновлена! Актуальных позиций: ${petsData.length}`);
     } else {
-      console.warn('⚠️ Ничего не найдено.');
+      console.warn('⚠️ Ошибка: массив пуст.');
     }
 
   } catch (error) {
-    console.error('❌ Ошибка парсинга:', error);
-  } finally {
-    await browser.close();
+    console.error('❌ Ошибка синхронизации:', error);
+    process.exit(1);
   }
 }
 
-scrapeElvebredd();
+updateData();
