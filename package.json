@@ -1,0 +1,12 @@
+{
+  "name": "elve-parser",
+  "version": "1.0.0",
+  "description": "Auto scraper for Adopt Me trading values",
+  "main": "parser.js",
+  "scripts": {
+    "start": "node parser.js"
+  },
+  "dependencies": {
+    "puppeteer": "^22.0.0"
+  }
+}
