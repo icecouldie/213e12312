@@ -1,32 +1,72 @@
 [
   {
-    "name": "Since 2020",
-    "image": "image pets/Since 2020.png",
+    "name": "Klex",
+    "image": "image pets/Klex.png",
     "tier": "Legendary",
-    "base": 2020,
-    "reg": "2020.00",
-    "neon": "7878.00",
-    "mega": "31916.00",
+    "base": 10,
+    "reg": "10.00",
+    "neon": "39.00",
+    "mega": "158.00",
     "demand": "High Demand 🔥"
   },
   {
-    "name": "You",
-    "image": "image pets/You.png",
+    "name": "karlakawaiiuwu1",
+    "image": "image pets/karlakawaiiuwu1.png",
     "tier": "Legendary",
-    "base": 1400,
-    "reg": "1400.00",
-    "neon": "5460.00",
-    "mega": "22120.00",
+    "base": 9,
+    "reg": "9.00",
+    "neon": "35.10",
+    "mega": "142.20",
     "demand": "High Demand 🔥"
   },
   {
-    "name": "World Records",
-    "image": "image pets/World Records.png",
+    "name": "dinastesa",
+    "image": "image pets/dinastesa.png",
     "tier": "Legendary",
-    "base": 0.5,
-    "reg": "0.50",
-    "neon": "1.95",
-    "mega": "7.90",
+    "base": 9,
+    "reg": "9.00",
+    "neon": "35.10",
+    "mega": "142.20",
+    "demand": "High Demand 🔥"
+  },
+  {
+    "name": "Unipug759",
+    "image": "image pets/Unipug759.png",
+    "tier": "Legendary",
+    "base": 9,
+    "reg": "9.00",
+    "neon": "35.10",
+    "mega": "142.20",
+    "demand": "High Demand 🔥"
+  },
+  {
+    "name": "Ghost",
+    "image": "image pets/Ghost.png",
+    "tier": "Legendary",
+    "base": 9,
+    "reg": "9.00",
+    "neon": "35.10",
+    "mega": "142.20",
+    "demand": "High Demand 🔥"
+  },
+  {
+    "name": "Dantheman7892",
+    "image": "image pets/Dantheman7892.png",
+    "tier": "Legendary",
+    "base": 7,
+    "reg": "7.00",
+    "neon": "27.30",
+    "mega": "110.60",
+    "demand": "High Demand 🔥"
+  },
+  {
+    "name": "SlimJim",
+    "image": "image pets/SlimJim.png",
+    "tier": "Legendary",
+    "base": 7,
+    "reg": "7.00",
+    "neon": "27.30",
+    "mega": "110.60",
     "demand": "High Demand 🔥"
   }
 ]
