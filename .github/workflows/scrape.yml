@@ -1,0 +1,35 @@
+name Auto Scrape Pet Values
+
+on
+  schedule
+    # Запуск каждые 12 часов (можешь изменить на '0 0   ' для запуска раз в сутки)
+    - cron '0 12   '
+  workflow_dispatch # Позволяет запустить парсер вручную кнопкой в интерфейсе GitHub
+
+jobs
+  run-parser
+    runs-on ubuntu-latest
+    permissions
+      contents write # Разрешаем роботу делать коммиты в репозиторий
+
+    steps
+      - name Клонируем репозиторий
+        uses actionscheckout@v4
+
+      - name Настраиваем Node.js
+        uses actionssetup-node@v4
+        with
+          node-version '20'
+
+      - name Устанавливаем зависимости
+        run npm install
+
+      - name Запускаем парсер
+        run node parser.js
+
+      - name Автоматический коммит обновленного файла pets-data.json
+        run 
+          git config --global user.name ElveTrack Scraper Bot
+          git config --global user.email bot@actions.github.com
+          git add pets-data.json
+          git diff --quiet && git diff --staged --quiet  (git commit -m 🤖 Авто-обновление базы цен питомцев [skip ci] && git push)
