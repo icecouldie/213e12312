@@ -1,72 +1,22 @@
 [
   {
-    "name": "Masonpoke5",
-    "image": "image pets/Masonpoke5.png",
+    "name": "Since 2020",
+    "image": "image pets/Since 2020.png",
     "tier": "Legendary",
-    "base": 11,
-    "reg": "11.00",
-    "neon": "42.90",
-    "mega": "173.80",
+    "base": 2020,
+    "reg": "2020.00",
+    "neon": "7878.00",
+    "mega": "31916.00",
     "demand": "High Demand 🔥"
   },
   {
-    "name": "frantouch",
-    "image": "image pets/frantouch.png",
+    "name": "You",
+    "image": "image pets/You.png",
     "tier": "Legendary",
-    "base": 11,
-    "reg": "11.00",
-    "neon": "42.90",
-    "mega": "173.80",
-    "demand": "High Demand 🔥"
-  },
-  {
-    "name": "IH34RT0MUR4",
-    "image": "image pets/IH34RT0MUR4.png",
-    "tier": "Legendary",
-    "base": 10,
-    "reg": "10.00",
-    "neon": "39.00",
-    "mega": "158.00",
-    "demand": "High Demand 🔥"
-  },
-  {
-    "name": "shafiraangel",
-    "image": "image pets/shafiraangel.png",
-    "tier": "Legendary",
-    "base": 9,
-    "reg": "9.00",
-    "neon": "35.10",
-    "mega": "142.20",
-    "demand": "High Demand 🔥"
-  },
-  {
-    "name": "Alejo062011",
-    "image": "image pets/Alejo062011.png",
-    "tier": "Legendary",
-    "base": 9,
-    "reg": "9.00",
-    "neon": "35.10",
-    "mega": "142.20",
-    "demand": "High Demand 🔥"
-  },
-  {
-    "name": "heartmurmurs",
-    "image": "image pets/heartmurmurs.png",
-    "tier": "Legendary",
-    "base": 8,
-    "reg": "8.00",
-    "neon": "31.20",
-    "mega": "126.40",
-    "demand": "High Demand 🔥"
-  },
-  {
-    "name": "gfiohowth",
-    "image": "image pets/gfiohowth.png",
-    "tier": "Legendary",
-    "base": 8,
-    "reg": "8.00",
-    "neon": "31.20",
-    "mega": "126.40",
+    "base": 1400,
+    "reg": "1400.00",
+    "neon": "5460.00",
+    "mega": "22120.00",
     "demand": "High Demand 🔥"
   },
   {
