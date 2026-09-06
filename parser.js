@@ -12,15 +12,15 @@ async function scrapeValues() {
   const page = await browser.newPage();
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
-  try {
+try {
     console.log('📄 Переходим на elvebredd.com...');
     await page.goto('https://elvebredd.com/', { 
-      waitUntil: 'networkidle2',
+      waitUntil: 'domcontentloaded', // ждем только загрузку DOM-структуры, не дожидаясь фоновых запросов
       timeout: 60000 
     });
 
     console.log('⏳ Ждем прогрузку элементов...');
-    await new Promise(r => setTimeout(r, 6000));
+    await new Promise(r => setTimeout(r, 8000)); // даем время скриптам отрисовать карточки
 
     const scrapedData = await page.evaluate(() => {
       const pets = [];
