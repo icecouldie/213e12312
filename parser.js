@@ -1,70 +1,85 @@
 const fs = require('fs');
+const puppeteer = require('puppeteer');
 
-async function updatePetsData() {
-  console.log('🚀 Запуск обновления базы данных ElveTrack...');
+async function scrapeElvebreddCalculator() {
+  console.log('🚀 Переход на калькулятор Elvebredd...');
+  
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
 
-  // Эталонная и актуальная база питомцев и их котировок
-  const petsData = [
-    { name: "Bat Dragon", image: "image pets/Bat Dragon.png", tier: "High-Tier Legendary", base: 943, reg: "943.00", neon: "2200.00", mega: "6500.00", demand: "High Demand 🔥" },
-    { name: "Shadow Dragon", image: "image pets/Shadow Dragon.png", tier: "High-Tier Legendary", base: 844, reg: "844.00", neon: "1300.00", mega: "3300.00", demand: "High Demand 🔥" },
-    { name: "Giraffe", image: "image pets/Giraffe.png", tier: "High-Tier Legendary", base: 475, reg: "475.00", neon: "920.00", mega: "2900.00", demand: "Stable" },
-    { name: "Frost Dragon", image: "image pets/Frost Dragon.png", tier: "High-Tier Legendary", base: 326, reg: "326.00", neon: "552.00", mega: "1400.00", demand: "High Demand 🔥" },
-    { name: "Owl", image: "image pets/Owl.png", tier: "High-Tier Legendary", base: 246.5, reg: "246.50", neon: "603.00", mega: "1900.00", demand: "High Demand 🔥" },
-    { name: "Giant Panda", image: "image pets/Giant Panda.png", tier: "High-Tier Legendary", base: 220, reg: "220.00", neon: "850.00", mega: "3300.00", demand: "High Demand 🔥" },
-    { name: "Blazing Lion", image: "image pets/Blazing Lion.png", tier: "High-Tier Legendary", base: 202, reg: "202.00", neon: "790.00", mega: "3100.00", demand: "High Demand 🔥" },
-    { name: "Parrot", image: "image pets/Parrot.png", tier: "High-Tier Legendary", base: 196.5, reg: "196.50", neon: "396.00", mega: "1000.00", demand: "Stable" },
-    { name: "Crow", image: "image pets/Crow.png", tier: "High-Tier Legendary", base: 175.5, reg: "175.50", neon: "400.00", mega: "1200.00", demand: "Stable" },
-    { name: "Evil Unicorn", image: "image pets/Evil Unicorn.png", tier: "High-Tier Legendary", base: 109, reg: "109.00", neon: "260.00", mega: "750.00", demand: "Stable" },
-    { name: "Arctic Reindeer", image: "image pets/Arctic Reindeer.png", tier: "Legendary", base: 50.5, reg: "50.50", neon: "135.00", mega: "390.00", demand: "Stable" },
-    { name: "Diamond Butterfly", image: "image pets/Diamond Butterfly.png", tier: "Legendary", base: 42, reg: "42.00", neon: "110.00", mega: "320.00", demand: "High Demand 🔥" },
-    { name: "Frostbite Bear", image: "image pets/Frostbite Bear.png", tier: "Legendary", base: 38.5, reg: "38.50", neon: "100.00", mega: "290.00", demand: "High Demand 🔥" },
-    { name: "Monkey King", image: "image pets/Monkey King.png", tier: "Legendary", base: 36, reg: "36.00", neon: "95.00", mega: "270.00", demand: "Stable" },
-    { name: "Strawberry Shortcake Bat Dragon", image: "image pets/Strawberry Shortcake Bat Dragon.png", tier: "Legendary", base: 33.5, reg: "33.50", neon: "90.00", mega: "260.00", demand: "High Demand 🔥" },
-    { name: "Chocolate Chip Bat Dragon", image: "image pets/Chocolate Chip Bat Dragon.png", tier: "Legendary", base: 32.75, reg: "32.75", neon: "88.00", mega: "250.00", demand: "High Demand 🔥" },
-    { name: "Hot Doggo", image: "image pets/Hot Doggo.png", tier: "Legendary", base: 31.5, reg: "31.50", neon: "85.00", mega: "245.00", demand: "High Demand 🔥" },
-    { name: "Grim Dragon", image: "image pets/Grim Dragon.png", tier: "Legendary", base: 25.5, reg: "25.50", neon: "70.00", mega: "200.00", demand: "Stable" },
-    { name: "Turtle", image: "image pets/Turtle.png", tier: "Legendary", base: 23, reg: "23.00", neon: "51.00", mega: "205.00", demand: "High Demand 🔥" },
-    { name: "Flamingo", image: "image pets/Flamingo.png", tier: "Ultra-Rare", base: 22, reg: "22.00", neon: "88.00", mega: "350.00", demand: "High Demand 🔥" },
-    { name: "Bush Elephant", image: "image pets/Bush Elephant.png", tier: "Legendary", base: 21.5, reg: "21.50", neon: "58.00", mega: "170.00", demand: "Stable" },
-    { name: "Cow", image: "image pets/Cow.png", tier: "Rare", base: 21, reg: "21.00", neon: "36.00", mega: "144.00", demand: "High Demand 🔥" },
-    { name: "Silverback Gorilla", image: "image pets/Silverback Gorilla.png", tier: "Legendary", base: 20.5, reg: "20.50", neon: "55.00", mega: "160.00", demand: "Stable" },
-    { name: "Lion", image: "image pets/Lion.png", tier: "Ultra-Rare", base: 18.5, reg: "18.50", neon: "74.00", mega: "295.00", demand: "Stable" },
-    { name: "Kangaroo", image: "image pets/Kangaroo.png", tier: "Legendary", base: 18, reg: "18.00", neon: "48.00", mega: "140.00", demand: "Stable" },
-    { name: "Albino Monkey", image: "image pets/Albino Monkey.png", tier: "Legendary", base: 16.5, reg: "16.50", neon: "44.00", mega: "130.00", demand: "Stable" },
-    { name: "Sugar Axolotl", image: "image pets/Sugar Axolotl.png", tier: "Legendary", base: 16, reg: "16.00", neon: "43.00", mega: "125.00", demand: "High Demand 🔥" },
-    { name: "Frost Unicorn", image: "image pets/Frost Unicorn.png", tier: "Legendary", base: 15.25, reg: "15.25", neon: "41.00", mega: "120.00", demand: "High Demand 🔥" },
-    { name: "Winged Tiger", image: "image pets/Winged Tiger.png", tier: "Legendary", base: 14.75, reg: "14.75", neon: "39.00", mega: "115.00", demand: "Stable" },
-    { name: "Pig", image: "image pets/Pig.png", tier: "Rare", base: 14.5, reg: "14.50", neon: "30.00", mega: "120.00", demand: "Stable" },
-    { name: "Vampire Dragon", image: "image pets/Vampire Dragon.png", tier: "Legendary", base: 14, reg: "14.00", neon: "38.00", mega: "110.00", demand: "Stable" },
-    { name: "Elephant", image: "image pets/Elephant.png", tier: "Rare", base: 13, reg: "13.00", neon: "27.00", mega: "108.00", demand: "Stable" },
-    { name: "Shark Puppy", image: "image pets/Shark Puppy.png", tier: "Legendary", base: 12.5, reg: "12.50", neon: "33.00", mega: "100.00", demand: "High Demand 🔥" },
-    { name: "Frost Fury", image: "image pets/Frost Fury.png", tier: "Legendary", base: 11.5, reg: "11.50", neon: "14.00", mega: "42.00", demand: "Stable" },
-    { name: "Candicorn", image: "image pets/Candicorn.png", tier: "Legendary", base: 9.5, reg: "9.50", neon: "26.00", mega: "78.00", demand: "High Demand 🔥" },
-    { name: "Arctic Fox", image: "image pets/Arctic Fox.png", tier: "Ultra-Rare", base: 8, reg: "8.00", neon: "32.00", mega: "128.00", demand: "Stable" },
-    { name: "Midnight Dragon", image: "image pets/Midnight Dragon.png", tier: "Legendary", base: 7, reg: "7.00", neon: "19.00", mega: "58.00", demand: "Stable" },
-    { name: "Nessie", image: "image pets/Nessie.png", tier: "Legendary", base: 6.5, reg: "6.50", neon: "17.50", mega: "53.00", demand: "High Demand 🔥" },
-    { name: "Lava Dragon", image: "image pets/Lava Dragon.png", tier: "Legendary", base: 5.25, reg: "5.25", neon: "14.50", mega: "43.00", demand: "Stable" },
-    { name: "Mini Pig", image: "image pets/Mini Pig.png", tier: "Legendary", base: 4.8, reg: "4.80", neon: "13.00", mega: "39.00", demand: "High Demand 🔥" },
-    { name: "Cerberus", image: "image pets/Cerberus.png", tier: "Legendary", base: 4.75, reg: "4.75", neon: "13.00", mega: "39.00", demand: "Stable" },
-    { name: "Phoenix", image: "image pets/Phoenix.png", tier: "Legendary", base: 3.2, reg: "3.20", neon: "9.00", mega: "27.00", demand: "High Demand 🔥" },
-    { name: "Shark", image: "image pets/Shark.png", tier: "Legendary", base: 3, reg: "3.00", neon: "8.50", mega: "25.50", demand: "Stable" },
-    { name: "T-Rex", image: "image pets/T-Rex.png", tier: "Legendary", base: 2.5, reg: "2.50", neon: "7.00", mega: "21.00", demand: "Stable" },
-    { name: "Dodo", image: "image pets/Dodo.png", tier: "Legendary", base: 2.5, reg: "2.50", neon: "7.00", mega: "21.00", demand: "Stable" },
-    { name: "Octopus", image: "image pets/Octopus.png", tier: "Legendary", base: 2.2, reg: "2.20", neon: "6.50", mega: "19.50", demand: "Stable" },
-    { name: "Goldhorn", image: "image pets/Goldhorn.png", tier: "Legendary", base: 1.8, reg: "1.80", neon: "5.20", mega: "15.50", demand: "Stable" }
-  ];
+  const page = await browser.newPage();
+  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
   try {
-    // Сортируем по убыванию стоимости
-    petsData.sort((a, b) => b.base - a.base);
+    // Открываем именно страницу калькулятора, а не главную
+    await page.goto('https://elvebredd.com/adopt-me-calculator', { 
+      waitUntil: 'domcontentloaded', 
+      timeout: 60000 
+    });
 
-    // Записываем актуальный JSON в файл
-    fs.writeFileSync('./pets-data.json', JSON.stringify(petsData, null, 2), 'utf-8');
-    console.log(`✅ Успешно обновлено позиций в pets-data.json: ${petsData.length}`);
+    console.log('⏳ Ожидание отрисовки сетки питомцев...');
+    await new Promise(r => setTimeout(r, 10000));
+
+    // Извлекаем карточки питомцев из модального окна/каталога калькулятора
+    const livePets = await page.evaluate(() => {
+      const results = [];
+      
+      // Перебираем элементы, похожие на карточки в каталоге
+      const items = document.querySelectorAll('div, button');
+      items.forEach(el => {
+        const text = el.innerText || '';
+        const lines = text.split('\n').map(t => t.trim()).filter(Boolean);
+        
+        // В калькуляторе блок обычно содержит имя и число цены
+        if (lines.length >= 2) {
+          const name = lines[0];
+          const valStr = lines[1].replace(/[^0-9.]/g, '');
+          const val = parseFloat(valStr);
+
+          // Проверяем, что это не системные кнопки и число адекватное
+          if (
+            !isNaN(val) && 
+            val > 0 && 
+            val < 20000 &&
+            name.length > 2 && 
+            name.length < 35 &&
+            !name.toLowerCase().includes('shark') &&
+            !name.toLowerCase().includes('frost') &&
+            !name.toLowerCase().includes('offer') &&
+            !name.toLowerCase().includes('value')
+          ) {
+            results.push({
+              name: name,
+              image: `image pets/${name}.png`,
+              tier: "Legendary",
+              base: val,
+              reg: val.toFixed(2),
+              neon: (val * 3.9).toFixed(2),
+              mega: (val * 15.8).toFixed(2),
+              demand: "High Demand 🔥"
+            });
+          }
+        }
+      });
+
+      return Array.from(new Map(results.map(p => [p.name, p])).values());
+    });
+
+    if (livePets.length > 0) {
+      livePets.sort((a, b) => b.base - a.base);
+      fs.writeFileSync('./pets-data.json', JSON.stringify(livePets, null, 2), 'utf-8');
+      console.log(`✅ Спарсено питомцев из калькулятора: ${livePets.length}`);
+    } else {
+      console.warn('⚠️ Элементы калькулятора не найдены (возможно, требуется клик по кнопке добавления питомца).');
+    }
+
   } catch (error) {
-    console.error('❌ Ошибка записи файла:', error);
-    process.exit(1);
+    console.error('❌ Ошибка парсинга калькулятора:', error);
+  } finally {
+    await browser.close();
   }
 }
 
-updatePetsData();
+scrapeElvebreddCalculator();
