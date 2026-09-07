@@ -10,46 +10,65 @@ async function scrapeElvebreddCalculator() {
   });
 
   const page = await browser.newPage();
+  await page.setViewport({ width: 1280, height: 800 });
   await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
 
   try {
-    // Открываем именно страницу калькулятора, а не главную
     await page.goto('https://elvebredd.com/adopt-me-calculator', { 
       waitUntil: 'domcontentloaded', 
       timeout: 60000 
     });
 
-    console.log('⏳ Ожидание отрисовки сетки питомцев...');
-    await new Promise(r => setTimeout(r, 10000));
+    console.log('⏳ Ожидание загрузки интерфейса...');
+    await new Promise(r => setTimeout(r, 6000));
 
-    // Извлекаем карточки питомцев из модального окна/каталога калькулятора
+    // Ищем и нажимаем на кнопку/слот добавления питомца (плюс или пустую ячейку)
+    console.log('🖱️ Кликаем на слот добавления питомца (+)...');
+    const clicked = await page.evaluate(() => {
+      // Ищем элементы с плюсиком, svg или кнопками сетки трейда
+      const buttons = Array.from(document.querySelectorAll('button, div'));
+      const plusBtn = buttons.find(el => {
+        const t = el.innerText ? el.innerText.trim() : '';
+        return t === '+' || el.getAttribute('aria-label') === 'Add pet' || el.classList.contains('add-item');
+      });
+
+      if (plusBtn) {
+        plusBtn.click();
+        return true;
+      }
+      return false;
+    });
+
+    console.log(clicked ? '✅ Клик выполнен, ждем открытие каталога...' : '⚠️ Прямая кнопка не найдена, пробуем читать открытые элементы...');
+    await new Promise(r => setTimeout(r, 6000));
+
+    // Собираем появившиеся карточки питомцев
     const livePets = await page.evaluate(() => {
       const results = [];
-      
-      // Перебираем элементы, похожие на карточки в каталоге
-      const items = document.querySelectorAll('div, button');
-      items.forEach(el => {
+      const cards = document.querySelectorAll('div, button');
+
+      cards.forEach(el => {
         const text = el.innerText || '';
+        if (!text.includes('\n')) return;
+
         const lines = text.split('\n').map(t => t.trim()).filter(Boolean);
-        
-        // В калькуляторе блок обычно содержит имя и число цены
         if (lines.length >= 2) {
           const name = lines[0];
           const valStr = lines[1].replace(/[^0-9.]/g, '');
           const val = parseFloat(valStr);
 
-          // Проверяем, что это не системные кнопки и число адекватное
-          if (
-            !isNaN(val) && 
-            val > 0 && 
-            val < 20000 &&
-            name.length > 2 && 
-            name.length < 35 &&
-            !name.toLowerCase().includes('shark') &&
-            !name.toLowerCase().includes('frost') &&
-            !name.toLowerCase().includes('offer') &&
-            !name.toLowerCase().includes('value')
-          ) {
+          // Проверяем имя и диапазон цен
+          const isInvalidName = 
+            !name || 
+            name.length < 2 || 
+            name.length > 35 ||
+            name.toLowerCase().includes('shark') ||
+            name.toLowerCase().includes('frost') ||
+            name.toLowerCase().includes('their offer') ||
+            name.toLowerCase().includes('your offer') ||
+            name.toLowerCase().includes('value');
+
+          if (!isNaN(val) && val > 0 && val < 50000 && !isInvalidName) {
             results.push({
               name: name,
               image: `image pets/${name}.png`,
@@ -70,13 +89,13 @@ async function scrapeElvebreddCalculator() {
     if (livePets.length > 0) {
       livePets.sort((a, b) => b.base - a.base);
       fs.writeFileSync('./pets-data.json', JSON.stringify(livePets, null, 2), 'utf-8');
-      console.log(`✅ Спарсено питомцев из калькулятора: ${livePets.length}`);
+      console.log(`✅ Успешно собрано питомцев: ${livePets.length}`);
     } else {
-      console.warn('⚠️ Элементы калькулятора не найдены (возможно, требуется клик по кнопке добавления питомца).');
+      console.warn('⚠️ Карточки в каталоге не обнаружены.');
     }
 
   } catch (error) {
-    console.error('❌ Ошибка парсинга калькулятора:', error);
+    console.error('❌ Ошибка выполнения парсера:', error);
   } finally {
     await browser.close();
   }
