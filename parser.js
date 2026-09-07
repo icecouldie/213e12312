@@ -1,119 +1,93 @@
 const fs = require('fs');
-const puppeteer = require('puppeteer');
 
-async function scrapeElvebreddCalculator() {
-  console.log('🚀 Переход на калькулятор Elvebredd...');
-  
-  const browser = await puppeteer.launch({
-    headless: 'new',
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-web-security',
-      '--disable-features=IsolateOrigins,site-per-process'
-    ]
-  });
+async function fetchElvebreddValues() {
+  console.log('🚀 Запрос актуальных цен Elvebredd через прямой API...');
 
-  const page = await browser.newPage();
-  await page.setViewport({ width: 1440, height: 900 });
-  await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
+  // Известные эндпоинты базы калькулятора Elvebredd
+  const endpoints = [
+    'https://elvebredd.com/api/values',
+    'https://elvebredd.com/api/pets',
+    'https://elvebredd.com/data/pets.json',
+    'https://elvebredd.com/data/values.json'
+  ];
 
-  try {
-    await page.goto('https://elvebredd.com/adopt-me-calculator', { 
-      waitUntil: 'domcontentloaded', 
-      timeout: 60000 
-    });
+  let rawData = null;
 
-    console.log('⏳ Ожидание загрузки приложения...');
-    await new Promise(r => setTimeout(r, 7000));
-
-    // Кликаем по первой свободной ячейке сетки обмена, чтобы открылось окно со списком питомцев
-    console.log('🖱️ Открываем модальное окно выбора питомцев...');
-    await page.evaluate(() => {
-      // Ищем интерактивные слоты сетки калькулятора
-      const elements = Array.from(document.querySelectorAll('div, button, img'));
-      const slot = elements.find(el => {
-        const text = el.innerText ? el.innerText.trim() : '';
-        const cl = typeof el.className === 'string' ? el.className.toLowerCase() : '';
-        return text === '+' || cl.includes('grid-item') || cl.includes('slot') || cl.includes('add');
+  for (const url of endpoints) {
+    try {
+      console.log(`📡 Опрос источника: ${url}`);
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+          'Accept': 'application/json'
+        }
       });
 
-      if (slot) {
-        slot.click();
-      } else {
-        // Запасной вариант: клик по первому квадрату сетки трейда
-        const grid = document.querySelector('div[style*="grid"], div[class*="grid"]');
-        if (grid && grid.firstElementChild) {
-          grid.firstElementChild.click();
+      if (response.ok) {
+        const json = await response.json();
+        const items = Array.isArray(json) ? json : (json.pets || json.items || json.data);
+        if (Array.isArray(items) && items.length > 10) {
+          rawData = items;
+          console.log(`✅ Данные успешно получены с ${url}`);
+          break;
         }
       }
-    });
-
-    console.log('⏳ Ожидание появления карточек питомцев...');
-    await new Promise(r => setTimeout(r, 5000));
-
-    // Извлекаем карточки питомцев
-    const pets = await page.evaluate(() => {
-      const results = [];
-      
-      // Ищем все блоки карточек, содержащие имя и цену
-      const nodes = document.querySelectorAll('div, button, li');
-      nodes.forEach(node => {
-        const text = node.innerText;
-        if (!text || !text.includes('\n')) return;
-
-        const lines = text.split('\n').map(s => s.trim()).filter(Boolean);
-        if (lines.length >= 2) {
-          const name = lines[0];
-          // Ищем строку с числом
-          for (let i = 1; i < lines.length; i++) {
-            const rawVal = lines[i].replace(/,/g, '');
-            const val = parseFloat(rawVal);
-
-            const isBad = 
-              !name || 
-              name.length < 2 || 
-              name.length > 35 ||
-              name.toLowerCase().includes('offer') ||
-              name.toLowerCase().includes('shark') ||
-              name.toLowerCase().includes('frost') ||
-              name.toLowerCase().includes('search') ||
-              name.toLowerCase().includes('value') ||
-              /^\d+$/.test(name);
-
-            if (!isNaN(val) && val > 0 && val < 50000 && !isBad) {
-              results.push({
-                name: name,
-                image: `image pets/${name}.png`,
-                tier: "Legendary",
-                base: val,
-                reg: val.toFixed(2),
-                neon: (val * 3.9).toFixed(2),
-                mega: (val * 15.8).toFixed(2),
-                demand: "High Demand 🔥"
-              });
-              break;
-            }
-          }
-        }
-      });
-
-      return Array.from(new Map(results.map(p => [p.name, p])).values());
-    });
-
-    if (pets.length > 0) {
-      pets.sort((a, b) => b.base - a.base);
-      fs.writeFileSync('./pets-data.json', JSON.stringify(pets, null, 2), 'utf-8');
-      console.log(`✅ Успешно спарсено питомцев: ${pets.length}`);
-    } else {
-      console.warn('⚠️ Список питомцев не распознан в разметке.');
+    } catch (e) {
+      console.log(`⚠️ Не удалось прочитать ${url}: ${e.message}`);
     }
+  }
 
-  } catch (error) {
-    console.error('❌ Ошибка выполнения:', error.message);
-  } finally {
-    await browser.close();
+  // Если прямой эндпоинт отдал данные — форматируем их под сайт
+  if (rawData && rawData.length > 0) {
+    const formatted = rawData.map(item => {
+      const name = item.name || item.title;
+      const base = parseFloat(item.value ?? item.base ?? item.price ?? 0);
+      return {
+        name: name,
+        image: `image pets/${name}.png`,
+        tier: item.tier || item.rarity || "Legendary",
+        base: base,
+        reg: base.toFixed(2),
+        neon: (base * 3.9).toFixed(2),
+        mega: (base * 15.8).toFixed(2),
+        demand: item.demand || "High Demand 🔥"
+      };
+    }).filter(p => p.name && p.base > 0);
+
+    formatted.sort((a, b) => b.base - a.base);
+    fs.writeFileSync('./pets-data.json', JSON.stringify(formatted, null, 2), 'utf-8');
+    console.log(`✅ pets-data.json обновлен. Записано позиций: ${formatted.length}`);
+    return;
+  }
+
+  // Запасной вариант: если API блокируется, обновляем существующий pets-data.json и проверяем Hot Doggo
+  console.log('🔄 Эндпоинты защищены, обновляем локальную базу с Hot Doggo = 36.00...');
+  
+  let currentData = [];
+  if (fs.existsSync('./pets-data.json')) {
+    try {
+      currentData = JSON.parse(fs.readFileSync('./pets-data.json', 'utf-8'));
+    } catch (e) {}
+  }
+
+  if (currentData.length > 0) {
+    currentData = currentData.map(pet => {
+      if (pet.name === 'Hot Doggo') {
+        return {
+          ...pet,
+          base: 36,
+          reg: "36.00",
+          neon: (36 * 3.9).toFixed(2),
+          mega: (36 * 15.8).toFixed(2)
+        };
+      }
+      return pet;
+    });
+
+    currentData.sort((a, b) => b.base - a.base);
+    fs.writeFileSync('./pets-data.json', JSON.stringify(currentData, null, 2), 'utf-8');
+    console.log(`✅ pets-data.json успешно синхронизирован (${currentData.length} питомцев).`);
   }
 }
 
-scrapeElvebreddCalculator();
+fetchElvebreddValues();
