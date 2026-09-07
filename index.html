@@ -35,7 +35,6 @@
       --shiny-base: #18191D;
       --shiny-shine: #8C92A4;
       --spark-color: #121316;
-
       --bento-glow-color: 40, 42, 50;
     }
 
@@ -62,7 +61,6 @@
       --shiny-base: #8B949E;
       --shiny-shine: #FFFFFF;
       --spark-color: #FFFFFF;
-
       --bento-glow-color: 132, 0, 255;
     }
 
@@ -467,9 +465,9 @@
             <div class="pet-name" id="left-name">Turtle</div>
 
             <div class="tier-toggle-row">
-              <button class="tier-btn active" onclick="setModifier('left', 'tier', 1, this)">REG</button>
-              <button class="tier-btn" onclick="setModifier('left', 'tier', 4.1, this)">NEON</button>
-              <button class="tier-btn" onclick="setModifier('left', 'tier', 16.5, this)">MEGA</button>
+              <button class="tier-btn active" onclick="setTierType('left', 'reg', this)">REG</button>
+              <button class="tier-btn" onclick="setTierType('left', 'neon', this)">NEON</button>
+              <button class="tier-btn" onclick="setTierType('left', 'mega', this)">MEGA</button>
             </div>
             <div class="tier-toggle-row">
               <button class="tier-btn" id="left-f-btn" onclick="toggleOption('left', 'fly')">F</button>
@@ -483,26 +481,26 @@
           <div class="trade-box magic-bento-card">
             <div class="trade-box-label">Они отдают</div>
             <img class="pet-img" id="right-img" src="" alt="Pet" onerror="this.src='https://api.iconify.design/noto:paw-prints.svg'" />
-            <div class="pet-name" id="right-name">Hot Doggo</div>
+            <div class="pet-name" id="right-name">Shadow Dragon</div>
 
             <div class="tier-toggle-row">
-              <button class="tier-btn active" onclick="setModifier('right', 'tier', 1, this)">REG</button>
-              <button class="tier-btn" onclick="setModifier('right', 'tier', 3.9, this)">NEON</button>
-              <button class="tier-btn" onclick="setModifier('right', 'tier', 15.8, this)">MEGA</button>
+              <button class="tier-btn" onclick="setTierType('right', 'reg', this)">REG</button>
+              <button class="tier-btn active" onclick="setTierType('right', 'neon', this)">NEON</button>
+              <button class="tier-btn" onclick="setTierType('right', 'mega', this)">MEGA</button>
             </div>
             <div class="tier-toggle-row">
               <button class="tier-btn" id="right-f-btn" onclick="toggleOption('right', 'fly')">F</button>
               <button class="tier-btn" id="right-r-btn" onclick="toggleOption('right', 'ride')">R</button>
             </div>
 
-            <div class="val-badge" id="right-val">Val: 36.00</div>
+            <div class="val-badge" id="right-val">Val: 2022.00</div>
             <div><button class="switch-link" onclick="cycleRightPet()">Сменить питомца</button></div>
           </div>
         </div>
 
         <div class="wfl-result-box" id="trade-verdict">
-          <span id="verdict-label">LOSE (-13.00 ELVE)</span>
-          <span id="verdict-spread">-36%</span>
+          <span id="verdict-label">WIN (+1999.00 ELVE)</span>
+          <span id="verdict-spread">+8691%</span>
         </div>
       </div>
     </div>
@@ -707,18 +705,18 @@
     initBlurDesc();
 
     let PETS_DATABASE = [
-      { name: "Bat Dragon", image: "image pets/Bat Dragon.png", tier: "High-Tier Legendary", base: 943.0, reg: "943.00", neon: "2200.00", mega: "6500.00", demand: "High Demand 🔥" },
-      { name: "Shadow Dragon", image: "image pets/Shadow Dragon.png", tier: "High-Tier Legendary", base: 844.0, reg: "844.00", neon: "1300.00", mega: "3300.00", demand: "High Demand 🔥" },
-      { name: "Giraffe", image: "image pets/Giraffe.png", tier: "High-Tier Legendary", base: 475.0, reg: "475.00", neon: "920.00", mega: "2900.00", demand: "Stable" },
-      { name: "Frost Dragon", image: "image pets/Frost Dragon.png", tier: "High-Tier Legendary", base: 326.0, reg: "326.00", neon: "552.00", mega: "1400.00", demand: "High Demand 🔥" },
+      { name: "Bat Dragon", image: "image pets/Bat Dragon.png", tier: "High-Tier Legendary", base: 943.0, reg: "943.00", neon: "2280.00", mega: "6500.00", demand: "High Demand 🔥" },
+      { name: "Shadow Dragon", image: "image pets/Shadow Dragon.png", tier: "High-Tier Legendary", base: 844.0, reg: "844.00", neon: "2022.00", mega: "5150.00", demand: "High Demand 🔥" },
+      { name: "Giraffe", image: "image pets/Giraffe.png", tier: "High-Tier Legendary", base: 475.0, reg: "475.00", neon: "1150.00", mega: "2900.00", demand: "Stable" },
+      { name: "Frost Dragon", image: "image pets/Frost Dragon.png", tier: "High-Tier Legendary", base: 326.0, reg: "326.00", neon: "790.00", mega: "1980.00", demand: "High Demand 🔥" },
       { name: "Owl", image: "image pets/Owl.png", tier: "High-Tier Legendary", base: 246.5, reg: "246.50", neon: "603.00", mega: "1900.00", demand: "High Demand 🔥" },
-      { name: "Giant Panda", image: "image pets/Giant Panda.png", tier: "High-Tier Legendary", base: 220.0, reg: "220.00", neon: "850.00", mega: "3300.00", demand: "High Demand 🔥" },
-      { name: "Blazing Lion", image: "image pets/Blazing Lion.png", tier: "High-Tier Legendary", base: 202.0, reg: "202.00", neon: "790.00", mega: "3100.00", demand: "High Demand 🔥" },
-      { name: "Parrot", image: "image pets/Parrot.png", tier: "High-Tier Legendary", base: 196.5, reg: "196.50", neon: "396.00", mega: "1000.00", demand: "Stable" },
-      { name: "Crow", image: "image pets/Crow.png", tier: "High-Tier Legendary", base: 175.5, reg: "175.50", neon: "400.00", mega: "1200.00", demand: "Stable" },
-      { name: "Evil Unicorn", image: "image pets/Evil Unicorn.png", tier: "High-Tier Legendary", base: 109.0, reg: "109.00", neon: "260.00", mega: "750.00", demand: "Stable" },
+      { name: "Giant Panda", image: "image pets/Giant Panda.png", tier: "High-Tier Legendary", base: 220.0, reg: "220.00", neon: "535.00", mega: "1650.00", demand: "High Demand 🔥" },
+      { name: "Blazing Lion", image: "image pets/Blazing Lion.png", tier: "High-Tier Legendary", base: 202.0, reg: "202.00", neon: "490.00", mega: "1520.00", demand: "High Demand 🔥" },
+      { name: "Parrot", image: "image pets/Parrot.png", tier: "High-Tier Legendary", base: 196.5, reg: "196.50", neon: "480.00", mega: "1480.00", demand: "Stable" },
+      { name: "Crow", image: "image pets/Crow.png", tier: "High-Tier Legendary", base: 175.5, reg: "175.50", neon: "428.00", mega: "1320.00", demand: "Stable" },
+      { name: "Evil Unicorn", image: "image pets/Evil Unicorn.png", tier: "High-Tier Legendary", base: 109.0, reg: "109.00", neon: "265.00", mega: "820.00", demand: "Stable" },
       { name: "Hot Doggo", image: "image pets/Hot Doggo.png", tier: "Legendary", base: 36.0, reg: "36.00", neon: "97.20", mega: "280.00", demand: "High Demand 🔥" },
-      { name: "Turtle", image: "image pets/Turtle.png", tier: "Legendary", base: 23.0, reg: "23.00", neon: "51.00", mega: "205.00", demand: "High Demand 🔥" }
+      { name: "Turtle", image: "image pets/Turtle.png", tier: "Legendary", base: 23.0, reg: "23.00", neon: "56.00", mega: "172.00", demand: "High Demand 🔥" }
     ];
 
     function renderPets(list) {
@@ -756,7 +754,6 @@
       renderPets(filtered);
     }
 
-    // Автоматическая загрузка актуального pets-data.json
     fetch('./pets-data.json?v=' + Date.now())
       .then(res => res.json())
       .then(data => {
@@ -764,10 +761,6 @@
           PETS_DATABASE = data;
         }
         renderPets(PETS_DATABASE);
-        const hotDoggo = PETS_DATABASE.find(p => p.name === 'Hot Doggo');
-        if (hotDoggo) {
-          rightPets[0].base = hotDoggo.base;
-        }
         calcValues();
       })
       .catch(() => {
@@ -795,54 +788,71 @@
     }
 
     const leftPets = [
-      { name: "Turtle", image: "image pets/Turtle.png", base: 23.0 },
-      { name: "Frost Dragon", image: "image pets/Frost Dragon.png", base: 326.0 },
-      { name: "Owl", image: "image pets/Owl.png", base: 246.5 }
+      { name: "Turtle", image: "image pets/Turtle.png" },
+      { name: "Frost Dragon", image: "image pets/Frost Dragon.png" },
+      { name: "Owl", image: "image pets/Owl.png" }
     ];
 
     const rightPets = [
-      { name: "Hot Doggo", image: "image pets/Hot Doggo.png", base: 36.0 },
-      { name: "Shadow Dragon", image: "image pets/Shadow Dragon.png", base: 844.0 },
-      { name: "Bat Dragon", image: "image pets/Bat Dragon.png", base: 943.0 }
+      { name: "Shadow Dragon", image: "image pets/Shadow Dragon.png" },
+      { name: "Hot Doggo", image: "image pets/Hot Doggo.png" },
+      { name: "Bat Dragon", image: "image pets/Bat Dragon.png" }
     ];
 
     let leftIdx = 0;
     let rightIdx = 0;
     const tradeState = {
-      left: { tierMultiplier: 1, fly: false, ride: false },
-      right: { tierMultiplier: 1, fly: false, ride: false }
+      left: { type: 'reg', fly: false, ride: false },
+      right: { type: 'neon', fly: false, ride: false }
     };
+
+    function setTierType(side, type, btn) {
+      const parent = btn.parentElement;
+      Array.from(parent.children).forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      tradeState[side].type = type;
+      calcValues();
+    }
+
+    function toggleOption(side, opt) {
+      tradeState[side][opt] = !tradeState[side][opt];
+      const btn = document.getElementById(`${side}-${opt[0]}-btn`);
+      if (tradeState[side][opt]) btn.classList.add('active');
+      else btn.classList.remove('active');
+      calcValues();
+    }
 
     function calcValues() {
       const lPet = leftPets[leftIdx];
       const rPet = rightPets[rightIdx];
 
-      let lMultiplier = tradeState.left.tierMultiplier;
-      if (tradeState.left.fly) lMultiplier *= 1.15;
-      if (tradeState.left.ride) lMultiplier *= 1.10;
+      const lData = PETS_DATABASE.find(p => p.name === lPet.name) || { base: 23, reg: "23.00", neon: "56.00", mega: "172.00" };
+      const rData = PETS_DATABASE.find(p => p.name === rPet.name) || { base: 844, reg: "844.00", neon: "2022.00", mega: "5150.00" };
 
-      let rMultiplier = tradeState.right.tierMultiplier;
-      if (tradeState.right.fly) rMultiplier *= 1.15;
-      if (tradeState.right.ride) rMultiplier *= 1.10;
+      let lVal = parseFloat(lData[tradeState.left.type] || lData.reg || lData.base);
+      let rVal = parseFloat(rData[tradeState.right.type] || rData.reg || rData.base);
 
-      const lTotal = lPet.base * lMultiplier;
-      const rTotal = rPet.base * rMultiplier;
+      if (tradeState.left.fly) lVal += 1.5;
+      if (tradeState.left.ride) lVal += 1.0;
+
+      if (tradeState.right.fly) rVal += 1.5;
+      if (tradeState.right.ride) rVal += 1.0;
 
       const leftImg = document.getElementById('left-img');
       leftImg.src = lPet.image;
       document.getElementById('left-name').textContent = lPet.name;
-      document.getElementById('left-val').textContent = `Val: ${lTotal.toFixed(2)}`;
+      document.getElementById('left-val').textContent = `Val: ${lVal.toFixed(2)}`;
 
       const rightImg = document.getElementById('right-img');
       rightImg.src = rPet.image;
       document.getElementById('right-name').textContent = rPet.name;
-      document.getElementById('right-val').textContent = `Val: ${rTotal.toFixed(2)}`;
+      document.getElementById('right-val').textContent = `Val: ${rVal.toFixed(2)}`;
 
-      const diff = rTotal - lTotal;
+      const diff = rVal - lVal;
       const spreadEl = document.getElementById('verdict-spread');
       const labelEl = document.getElementById('verdict-label');
       const box = document.getElementById('trade-verdict');
-      const percent = Math.round((diff / (lTotal || 1)) * 100);
+      const percent = Math.round((diff / (lVal || 1)) * 100);
 
       if (diff > 1.5) {
         box.style.background = "var(--win-bg)"; box.style.color = "var(--win)";
@@ -859,25 +869,9 @@
     function selectRightPetByName(name) {
       const p = PETS_DATABASE.find(x => x.name === name);
       if (p) {
-        rightPets[rightIdx] = { name: p.name, image: p.image, base: p.base };
+        rightPets[rightIdx] = { name: p.name, image: p.image };
         calcValues();
       }
-    }
-
-    function setModifier(side, type, val, btn) {
-      const parent = btn.parentElement;
-      Array.from(parent.children).forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      tradeState[side].tierMultiplier = val;
-      calcValues();
-    }
-
-    function toggleOption(side, opt) {
-      tradeState[side][opt] = !tradeState[side][opt];
-      const btn = document.getElementById(`${side}-${opt[0]}-btn`);
-      if (tradeState[side][opt]) btn.classList.add('active');
-      else btn.classList.remove('active');
-      calcValues();
     }
 
     function cycleLeftPet() { leftIdx = (leftIdx + 1) % leftPets.length; calcValues(); }
