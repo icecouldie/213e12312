@@ -140,6 +140,16 @@
     "demand": "Stable"
   },
   {
+    "name": "Hot Doggo",
+    "image": "image pets/Hot Doggo.png",
+    "tier": "Legendary",
+    "base": 36,
+    "reg": "36.00",
+    "neon": "140.40",
+    "mega": "568.80",
+    "demand": "High Demand 🔥"
+  },
+  {
     "name": "Strawberry Shortcake Bat Dragon",
     "image": "image pets/Strawberry Shortcake Bat Dragon.png",
     "tier": "Legendary",
@@ -157,16 +167,6 @@
     "reg": "32.75",
     "neon": "88.00",
     "mega": "250.00",
-    "demand": "High Demand 🔥"
-  },
-  {
-    "name": "Hot Doggo",
-    "image": "image pets/Hot Doggo.png",
-    "tier": "Legendary",
-    "base": 31.5,
-    "reg": "31.50",
-    "neon": "85.00",
-    "mega": "245.00",
     "demand": "High Demand 🔥"
   },
   {
