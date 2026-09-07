@@ -3,886 +3,294 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ElveTrack // Adopt Me Value Terminal & HUD</title>
+  <title>ElveTrack // Adopt Me Value Terminal</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 
   <style>
     :root {
       --bg: #F6F2EA;
-      --card-bg: rgba(255, 255, 255, 0.75);
+      --card-bg: rgba(255, 255, 255, 0.85);
       --card-border: rgba(0, 0, 0, 0.08);
-      --card-inner: rgba(255, 255, 255, 0.9);
-      
+      --card-inner: #FFFFFF;
       --brand-black: #121316;
       --brand-black-hover: #26282E;
       --brand-btn-text: #FFFFFF;
-      
       --text-main: #18191D;
       --text-muted: #797E8B;
-      
       --win: #15803D;
-      --win-bg: rgba(34, 197, 94, 0.12);
+      --win-bg: rgba(34, 197, 94, 0.14);
       --lose: #DC2626;
-      --lose-bg: rgba(239, 68, 68, 0.12);
+      --lose-bg: rgba(239, 68, 68, 0.14);
       --fair: #D97706;
-      --fair-bg: rgba(245, 158, 11, 0.12);
-
-      --shiny-base: #18191D;
-      --shiny-shine: #8C92A4;
-      --spark-color: #121316;
-      --bento-glow-color: 40, 42, 50;
+      --fair-bg: rgba(245, 158, 11, 0.14);
     }
 
     [data-theme="dark"] {
       --bg: #0C0E14;
-      --card-bg: rgba(20, 24, 34, 0.78);
+      --card-bg: rgba(20, 24, 34, 0.85);
       --card-border: rgba(255, 255, 255, 0.08);
-      --card-inner: rgba(15, 18, 26, 0.88);
-      
+      --card-inner: #131722;
       --brand-black: #F8FAFC;
       --brand-black-hover: #E2E8F0;
       --brand-btn-text: #0C0E14;
-      
       --text-main: #F8FAFC;
       --text-muted: #94A3B8;
-      
       --win: #10B981;
-      --win-bg: rgba(16, 185, 129, 0.14);
+      --win-bg: rgba(16, 185, 129, 0.18);
       --lose: #EF4444;
-      --lose-bg: rgba(239, 68, 68, 0.14);
+      --lose-bg: rgba(239, 68, 68, 0.18);
       --fair: #F59E0B;
-      --fair-bg: rgba(245, 158, 11, 0.14);
-
-      --shiny-base: #8B949E;
-      --shiny-shine: #FFFFFF;
-      --spark-color: #FFFFFF;
-      --bento-glow-color: 132, 0, 255;
+      --fair-bg: rgba(245, 158, 11, 0.18);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.2s, color 0.2s; }
+    body { background: var(--bg); color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
+    header { max-width: 1200px; margin: 0 auto; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .brand { font-size: 1.6rem; font-weight: 900; letter-spacing: -0.8px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 20px 24px 80px; }
 
-    body {
-      background-color: var(--bg);
-      color: var(--text-main);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    #click-spark-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 9999;
-      user-select: none;
-    }
-
-    .magic-bento-card {
-      position: relative;
-      overflow: hidden;
-      transform-style: preserve-3d;
-      will-change: transform;
-      --glow-x: 50%;
-      --glow-y: 50%;
-      --glow-intensity: 0;
-      --glow-radius: 300px;
-    }
-
-    .magic-bento-card::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      padding: 1.5px;
-      border-radius: inherit;
-      background: radial-gradient(
-        var(--glow-radius) circle at var(--glow-x) var(--glow-y),
-        rgba(var(--bento-glow-color), calc(var(--glow-intensity) * 0.85)) 0%,
-        rgba(var(--bento-glow-color), calc(var(--glow-intensity) * 0.3)) 30%,
-        transparent 65%
-      );
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask-composite: exclude;
-      pointer-events: none;
-      z-index: 5;
-      opacity: 0.9;
-      transition: opacity 0.25s ease;
-    }
-
-    .bento-particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: rgba(var(--bento-glow-color), 1);
-      box-shadow: 0 0 8px rgba(var(--bento-glow-color), 0.7);
-      pointer-events: none;
-      z-index: 10;
-    }
-
-    .pet-img {
-      width: 68px;
-      height: 68px;
-      object-fit: contain;
-      margin-bottom: 4px;
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.12));
-    }
-
-    .pet-card-item .pet-img {
-      width: 58px;
-      height: 58px;
-      margin: 0 auto 6px;
-    }
-
-    .shiny-text-wrapper {
-      margin-bottom: 18px;
-      display: inline-block;
-    }
-
-    .shiny-text {
-      display: inline-block;
-      font-size: clamp(3rem, 6.2vw, 4.8rem);
-      font-weight: 900;
-      line-height: 1.02;
-      letter-spacing: -0.05em;
-      white-space: nowrap;
-      user-select: none;
-      background-size: 200% auto;
-      background-image: linear-gradient(
-        120deg,
-        var(--shiny-base) 0%,
-        var(--shiny-base) 35%,
-        var(--shiny-shine) 50%,
-        var(--shiny-base) 65%,
-        var(--shiny-base) 100%
-      );
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: shineAnimation 2.4s linear infinite;
-    }
-
-    @keyframes shineAnimation {
-      0% { background-position: 150% center; }
-      100% { background-position: -50% center; }
-    }
-
-    .blur-text {
-      display: flex;
-      flex-wrap: wrap;
-      color: var(--text-muted);
-      line-height: 1.6;
-      font-size: 1.08rem;
-      margin-bottom: 28px;
-    }
-
-    .blur-text-word {
-      display: inline-block;
-      will-change: transform, filter, opacity;
-      opacity: 0;
-      filter: blur(10px);
-      transform: translateY(-20px);
-    }
-
-    .blur-text-word.animate {
-      animation: blurTextReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes blurTextReveal {
-      0% { opacity: 0; filter: blur(10px); transform: translateY(-20px); }
-      50% { opacity: 0.5; filter: blur(4px); transform: translateY(3px); }
-      100% { opacity: 1; filter: blur(0px); transform: translateY(0); }
-    }
-
-    header {
-      position: relative;
-      z-index: 10;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 24px 6%;
-      max-width: 1240px;
-      margin: 0 auto;
-    }
-
-    .header-left { display: flex; align-items: center; gap: 16px; }
-
-    .brand-title {
-      font-size: 1.7rem;
-      font-weight: 800;
-      letter-spacing: -0.8px;
-      color: var(--text-main);
-      text-decoration: none;
-    }
-
-    .header-right { display: flex; align-items: center; gap: 16px; }
-    .nav-link { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
-    .nav-link:hover { color: var(--text-main); }
-
-    .theme-toggle-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+    .calc-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      color: var(--text-main);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      font-size: 18px;
-    }
-    .theme-toggle-btn:hover { transform: scale(1.05); }
-
-    .btn-pill-black {
-      background: var(--brand-black);
-      color: var(--brand-btn-text);
-      padding: 10px 24px;
-      border-radius: 100px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-pill-black:hover { background: var(--brand-black-hover); transform: translateY(-1px); }
-
-    .btn-pill-white {
-      background: var(--card-bg);
-      color: var(--text-main);
-      padding: 10px 24px;
-      border-radius: 100px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      text-decoration: none;
-      border: 1px solid var(--card-border);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-pill-white:hover { background: var(--card-inner); transform: translateY(-1px); }
-
-    main { position: relative; z-index: 2; max-width: 1140px; margin: 0 auto; padding: 20px 24px 80px; }
-
-    .welcome-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 36px;
-      padding: 28px 36px;
-      backdrop-filter: blur(20px);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
-    }
-
-    .welcome-user { display: flex; align-items: center; gap: 20px; }
-    .avatar-circle {
-      width: 64px; height: 64px; border-radius: 50%;
-      background: var(--card-inner); border: 1px solid var(--card-border);
-      display: grid; place-items: center; font-size: 32px;
-    }
-    .welcome-text h2 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 2px; }
-    .welcome-text p { color: var(--text-muted); font-size: 0.95rem; }
-
-    .mode-switch-group { display: flex; justify-content: center; gap: 12px; margin-bottom: 45px; }
-    .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 32px; align-items: center; margin-bottom: 60px; }
-
-    .trade-container {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 32px;
+      border-radius: 28px;
       padding: 24px;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.04);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.04);
+      margin-bottom: 40px;
     }
 
-    .trade-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 16px; font-size: 0.8rem; font-weight: 700;
-      color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+    .calc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
     }
 
-    .trade-sides { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
-    .trade-box { background: var(--card-inner); border: 1px solid var(--card-border); border-radius: 20px; padding: 16px; text-align: center; }
-    .trade-box-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
-    .pet-name { font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
+    .trade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .trade-box { background: var(--card-inner); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px; text-align: center; }
+    .pet-title { font-weight: 800; font-size: 1.1rem; margin: 8px 0; }
+    .pet-img { width: 76px; height: 76px; object-fit: contain; }
 
-    .tier-toggle-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 6px; flex-wrap: wrap; }
-    .tier-btn {
-      background: rgba(125, 125, 125, 0.1); border: 1px solid var(--card-border);
-      border-radius: 6px; color: var(--text-muted); font-size: 0.65rem;
-      font-weight: 700; padding: 3px 6px; cursor: pointer;
+    .btn-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
+    .btn-pill {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      cursor: pointer;
     }
-    .tier-btn.active { background: var(--brand-black); color: var(--brand-btn-text); border-color: var(--brand-black); }
+    .btn-pill.active { background: var(--brand-black); color: var(--brand-btn-text); }
 
-    .val-badge {
-      display: inline-block; font-family: 'JetBrains Mono', monospace;
-      font-size: 0.84rem; font-weight: 700; background: var(--card-bg);
-      border: 1px solid var(--card-border); padding: 4px 10px; border-radius: 8px;
-      margin-bottom: 8px; color: var(--text-main);
-    }
-    .switch-link { background: none; border: none; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; cursor: pointer; text-decoration: underline; }
-
-    .wfl-result-box { border-radius: 16px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 0.95rem; }
-
-    .search-section { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 32px; padding: 36px; margin-bottom: 50px; backdrop-filter: blur(20px); }
-    .section-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.6px; margin-bottom: 8px; }
-    .section-desc { color: var(--text-muted); margin-bottom: 24px; font-size: 0.95rem; }
-
-    .search-input-wrapper { position: relative; margin-bottom: 24px; }
-    .search-input {
-      width: 100%; padding: 16px 20px 16px 48px; border-radius: 16px;
-      border: 1px solid var(--card-border); background: var(--card-inner);
-      color: var(--text-main); font-size: 1rem; font-family: inherit; outline: none;
-    }
-    .search-input:focus { border-color: var(--brand-black); }
-    .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
-
-    .pets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-height: 640px; overflow-y: auto; padding-right: 6px; }
-    .pets-grid::-webkit-scrollbar { width: 6px; }
-    .pets-grid::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 10px; }
-
-    .pet-card-item { background: var(--card-inner); border: 1px solid var(--card-border); border-radius: 20px; padding: 18px; text-align: center; cursor: pointer; }
-    .pet-card-item .p-name { font-weight: 800; font-size: 0.95rem; margin-bottom: 3px; }
-    .pet-card-item .p-tier { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 10px; }
-
-    .price-row {
-      display: flex; justify-content: space-between; font-size: 0.78rem;
-      padding: 3px 0; border-bottom: 1px dashed var(--card-border);
+    .value-display {
       font-family: 'JetBrains Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 10px;
+      margin-top: 4px;
     }
-    .price-row:last-child { border-bottom: none; }
-    .demand-tag { display: inline-block; margin-top: 8px; padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700; }
-    .demand-high { background: var(--win-bg); color: var(--win); }
-    .demand-stable { background: var(--fair-bg); color: var(--fair); }
 
-    .faq-section { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 32px; padding: 36px; margin-bottom: 50px; backdrop-filter: blur(20px); }
-    .faq-list { display: flex; flex-direction: column; gap: 14px; margin-top: 20px; }
-    .faq-item { background: var(--card-inner); border: 1px solid var(--card-border); border-radius: 18px; overflow: hidden; }
-    .faq-question {
-      width: 100%; padding: 18px 22px; background: none; border: none;
-      color: var(--text-main); font-size: 1rem; font-weight: 700; text-align: left;
-      display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    .verdict-box {
+      border-radius: 16px;
+      padding: 16px 20px;
+      font-weight: 900;
+      font-size: 1.1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
-    .faq-icon { font-size: 1.2rem; transition: transform 0.2s ease; }
-    .faq-answer { max-height: 0; overflow: hidden; padding: 0 22px; color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; transition: max-height 0.3s ease, padding 0.3s ease; }
-    .faq-item.active .faq-answer { max-height: 200px; padding-bottom: 18px; }
-    .faq-item.active .faq-icon { transform: rotate(45deg); }
 
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.45); backdrop-filter: blur(10px);
-      z-index: 100; display: none; place-items: center;
+    .search-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 28px;
     }
-    .modal-overlay.active { display: grid; }
-    .modal-sheet { background: var(--card-inner); border: 1px solid var(--card-border); border-radius: 28px; padding: 36px; max-width: 480px; width: 90%; position: relative; }
-    .modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; color: var(--text-muted); cursor: pointer; }
 
-    footer { text-align: center; padding: 36px 6%; border-top: 1px solid var(--card-border); color: var(--text-muted); font-size: 0.84rem; }
-
-    @media (max-width: 860px) {
-      .hero-grid { grid-template-columns: 1fr; }
-      header { flex-wrap: wrap; gap: 16px; }
-      .brand-title { font-size: 1.4rem; }
+    .search-input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      background: var(--card-inner);
+      color: var(--text-main);
+      font-size: 1rem;
+      outline: none;
+      margin-bottom: 20px;
     }
+
+    .pets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
+    }
+
+    .pet-card {
+      background: var(--card-inner);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .row { display: flex; justify-content: space-between; font-size: 0.82rem; font-family: 'JetBrains Mono', monospace; padding: 2px 0; }
   </style>
 </head>
 <body>
 
-  <canvas id="click-spark-canvas"></canvas>
-
   <header>
-    <div class="header-left"><a href="#" class="brand-title">ElveTrack</a></div>
-    <div class="header-right">
-      <a href="#search" class="nav-link">База питомцев</a>
-      <a href="#faq" class="nav-link">Безопасность (FAQ)</a>
-      <button class="theme-toggle-btn" id="themeBtn" onclick="toggleTheme()" title="Переключить тему">🌙</button>
-      <button class="btn-pill-black" onclick="openModal()">Скачать</button>
-    </div>
+    <div class="brand">ElveTrack</div>
+    <div style="font-weight: 800; color: #FF5A36; font-size: 0.9rem;">Shark Values Official</div>
   </header>
 
   <main>
-    <div class="welcome-card magic-bento-card">
-      <div class="welcome-user">
-        <div class="avatar-circle">🤠</div>
-        <div class="welcome-text">
-          <h2>Welcome to ElveTrack!</h2>
-          <p>Официальные котировки редкости Elvebredd прямо в окне обмена Adopt Me</p>
-        </div>
-      </div>
-      <button class="btn-pill-white" onclick="openModal()">Установить оверлей</button>
-    </div>
-
-    <div class="mode-switch-group">
-      <button class="btn-pill-black" style="padding: 12px 28px;">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-        Value Overlay Active
-      </button>
-      <button class="btn-pill-white" style="padding: 12px 28px;" onclick="openModal()">
-        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-5H8l4-4 4 4h-3v5h-2z"/></svg>
-        Download Extension
-      </button>
-    </div>
-
-    <div class="hero-grid">
-      <div class="hero-info">
-        <div class="shiny-text-wrapper"><h1 class="shiny-text" id="shinyTitle">Adopt Me Values</h1></div>
-        <div class="blur-text" id="blurDescContainer" data-text="Больше не нужно держать открытыми 10 вкладок Elvebredd. Актуальные цены автоматически рассчитываются прямо во время трейда."></div>
-        <button class="btn-pill-black" style="padding: 14px 32px;" onclick="openModal()">Скачать расширение (.ZIP)</button>
+    <div class="calc-card">
+      <div class="calc-header">
+        <span style="font-weight: 800; font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted);">Elvebredd Calculator Clone</span>
+        <span style="font-weight: 700; color: #10B981; font-size: 0.85rem;">● 100% Synced</span>
       </div>
 
-      <div class="trade-container magic-bento-card" id="calc">
-        <div class="trade-header">
-          <span>Live Trade Simulation</span>
-          <span>● Synced</span>
-        </div>
+      <div class="trade-grid">
+        <div class="trade-box">
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 800;">YOUR OFFER</div>
+          <img class="pet-img" id="left-img" src="" alt="" onerror="this.src='https://api.iconify.design/noto:paw-prints.svg'" />
+          <div class="pet-title" id="left-name">Frost Dragon</div>
 
-        <div class="trade-sides">
-          <div class="trade-box magic-bento-card">
-            <div class="trade-box-label">Ты отдаешь</div>
-            <img class="pet-img" id="left-img" src="" alt="Pet" onerror="this.src='https://api.iconify.design/noto:paw-prints.svg'" />
-            <div class="pet-name" id="left-name">Turtle</div>
-
-            <div class="tier-toggle-row">
-              <button class="tier-btn active" onclick="setTierType('left', 'reg', this)">REG</button>
-              <button class="tier-btn" onclick="setTierType('left', 'neon', this)">NEON</button>
-              <button class="tier-btn" onclick="setTierType('left', 'mega', this)">MEGA</button>
-            </div>
-            <div class="tier-toggle-row">
-              <button class="tier-btn" id="left-f-btn" onclick="toggleOption('left', 'fly')">F</button>
-              <button class="tier-btn" id="left-r-btn" onclick="toggleOption('left', 'ride')">R</button>
-            </div>
-
-            <div class="val-badge" id="left-val">Val: 23.00</div>
-            <div><button class="switch-link" onclick="cycleLeftPet()">Сменить питомца</button></div>
+          <div class="btn-row">
+            <button class="btn-pill" onclick="setType('left', 'reg', this)">REG</button>
+            <button class="btn-pill active" onclick="setType('left', 'neon', this)">NEON</button>
+            <button class="btn-pill" onclick="setType('left', 'mega', this)">MEGA</button>
           </div>
+          <div class="value-display" id="left-val">612.50</div>
+        </div>
 
-          <div class="trade-box magic-bento-card">
-            <div class="trade-box-label">Они отдают</div>
-            <img class="pet-img" id="right-img" src="" alt="Pet" onerror="this.src='https://api.iconify.design/noto:paw-prints.svg'" />
-            <div class="pet-name" id="right-name">Shadow Dragon</div>
+        <div class="trade-box">
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 800;">THEIR OFFER</div>
+          <img class="pet-img" id="right-img" src="" alt="" onerror="this.src='https://api.iconify.design/noto:paw-prints.svg'" />
+          <div class="pet-title" id="right-name">Shadow Dragon</div>
 
-            <div class="tier-toggle-row">
-              <button class="tier-btn" onclick="setTierType('right', 'reg', this)">REG</button>
-              <button class="tier-btn active" onclick="setTierType('right', 'neon', this)">NEON</button>
-              <button class="tier-btn" onclick="setTierType('right', 'mega', this)">MEGA</button>
-            </div>
-            <div class="tier-toggle-row">
-              <button class="tier-btn" id="right-f-btn" onclick="toggleOption('right', 'fly')">F</button>
-              <button class="tier-btn" id="right-r-btn" onclick="toggleOption('right', 'ride')">R</button>
-            </div>
-
-            <div class="val-badge" id="right-val">Val: 2022.00</div>
-            <div><button class="switch-link" onclick="cycleRightPet()">Сменить питомца</button></div>
+          <div class="btn-row">
+            <button class="btn-pill" onclick="setType('right', 'reg', this)">REG</button>
+            <button class="btn-pill active" onclick="setType('right', 'neon', this)">NEON</button>
+            <button class="btn-pill" onclick="setType('right', 'mega', this)">MEGA</button>
           </div>
+          <div class="value-display" id="right-val">2022.00</div>
         </div>
+      </div>
 
-        <div class="wfl-result-box" id="trade-verdict">
-          <span id="verdict-label">WIN (+1999.00 ELVE)</span>
-          <span id="verdict-spread">+8691%</span>
-        </div>
+      <div class="verdict-box" id="verdict-box">
+        <span id="verdict-text">WIN (+1409.50)</span>
+        <span id="verdict-spread">+230%</span>
       </div>
     </div>
 
-    <section class="search-section magic-bento-card" id="search">
-      <h2 class="section-title">Быстрый поиск по базе Elvebredd</h2>
-      <p class="section-desc">Кликните по карточке любого питомца, чтобы подставить его в симулятор трейда:</p>
-
-      <div class="search-input-wrapper">
-        <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" class="search-input" id="petSearchInput" placeholder="Начните вводить: Bat Dragon, Shadow, Turtle, Owl, Cow..." oninput="filterPets()">
-      </div>
-
+    <div class="search-box">
+      <h2 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 12px;">Каталог питомцев</h2>
+      <input type="text" class="search-input" id="search" placeholder="Поиск питомца..." oninput="filterGrid()">
       <div class="pets-grid" id="petsGrid"></div>
-    </section>
-
-    <section class="faq-section magic-bento-card" id="faq">
-      <h2 class="section-title">Часто задаваемые вопросы (Безопасность)</h2>
-      <p class="section-desc">Всё, что вам нужно знать перед установкой расширения в браузер:</p>
-
-      <div class="faq-list">
-        <div class="faq-item magic-bento-card">
-          <button class="faq-question" onclick="toggleFaq(this)">
-            <span>Могут ли меня забанить в Roblox за использование ElveTrack?</span>
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-answer"><b>Абсолютно нет.</b> Расширение работает исключительно внутри вашего браузера как визуальный оверлей над веб-страницей Roblox.</div>
-        </div>
-        <div class="faq-item magic-bento-card">
-          <button class="faq-question" onclick="toggleFaq(this)">
-            <span>Требуются ли пароль или файлы cookie (.ROBLOSECURITY)?</span>
-            <span class="faq-icon">+</span>
-          </button>
-          <div class="faq-answer"><b>Нет, ни в коем случае.</b> ElveTrack не имеет доступа к вашим авторизационным куки и не запрашивает ввод логина или пароля.</div>
-        </div>
-      </div>
-    </section>
+    </div>
   </main>
 
-  <div class="modal-overlay" id="modal">
-    <div class="modal-sheet magic-bento-card">
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <h3 style="font-size: 1.3rem; margin-bottom: 6px; font-weight: 800;">Установка ElveTrack</h3>
-      <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 20px;">Инструкция по установке в Google Chrome:</p>
-      <button class="btn-pill-black" style="width: 100%; justify-content: center; margin-top: 14px;" onclick="closeModal()">Понятно</button>
-    </div>
-  </div>
-
-  <footer>
-    <p>© 2026 ElveTrack. Данные цен предоставлены Elvebredd. Не аффилировано с Roblox Corporation.</p>
-  </footer>
-
   <script>
-    function setupMagicBentoCard(card, options = {}) {
-      if (!card || card.dataset.bentoActive) return;
-      card.dataset.bentoActive = 'true';
+    let PETS_DATABASE = [];
 
-      const config = {
-        enableTilt: options.enableTilt ?? true,
-        enableMagnetism: options.enableMagnetism ?? true,
-        clickEffect: options.clickEffect ?? true,
-        enableStars: options.enableStars ?? true,
-        particleCount: options.particleCount ?? 8,
-        spotlightRadius: options.spotlightRadius ?? 300
-      };
+    const state = {
+      left: { pet: "Frost Dragon", type: "neon" },
+      right: { pet: "Shadow Dragon", type: "neon" }
+    };
 
-      const particles = [];
-      let isHovered = false;
+    function setType(side, type, btn) {
+      state[side].type = type;
+      btn.parentElement.querySelectorAll('.btn-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      calc();
+    }
 
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
+    function getVal(petName, type) {
+      const p = PETS_DATABASE.find(x => x.name === petName);
+      if (!p) return 0;
+      return parseFloat(p[`shark_${type}`] || 0);
+    }
 
-        const relX = (x / rect.width) * 100;
-        const relY = (y / rect.height) * 100;
+    function calc() {
+      const lVal = getVal(state.left.pet, state.left.type);
+      const rVal = getVal(state.right.pet, state.right.type);
 
-        card.style.setProperty('--glow-x', `${relX}%`);
-        card.style.setProperty('--glow-y', `${relY}%`);
-        card.style.setProperty('--glow-intensity', '1');
-        card.style.setProperty('--glow-radius', `${config.spotlightRadius}px`);
+      const lPet = PETS_DATABASE.find(p => p.name === state.left.pet) || { image: '' };
+      const rPet = PETS_DATABASE.find(p => p.name === state.right.pet) || { image: '' };
 
-        if (window.innerWidth > 768) {
-          if (config.enableTilt) {
-            const rotateX = ((y - centerY) / centerY) * -6;
-            const rotateY = ((x - centerX) / centerX) * 6;
-            gsap.to(card, { rotateX, rotateY, duration: 0.15, ease: 'power2.out', transformPerspective: 1000 });
-          }
-          if (config.enableMagnetism) {
-            gsap.to(card, { x: (x - centerX) * 0.03, y: (y - centerY) * 0.03, duration: 0.3, ease: 'power2.out' });
-          }
-        }
-      });
+      document.getElementById('left-name').textContent = state.left.pet;
+      document.getElementById('left-img').src = lPet.image;
+      document.getElementById('left-val').textContent = lVal.toFixed(1);
 
-      card.addEventListener('mouseenter', () => {
-        isHovered = true;
-        if (!config.enableStars || window.innerWidth <= 768) return;
-        const rect = card.getBoundingClientRect();
-        for (let i = 0; i < config.particleCount; i++) {
-          setTimeout(() => {
-            if (!isHovered) return;
-            const p = document.createElement('div');
-            p.className = 'bento-particle';
-            p.style.left = `${Math.random() * rect.width}px`;
-            p.style.top = `${Math.random() * rect.height}px`;
-            card.appendChild(p);
-            particles.push(p);
-            gsap.fromTo(p, { scale: 0, opacity: 0 }, { scale: 1, opacity: 0.9, duration: 0.3, ease: 'back.out(1.7)' });
-            gsap.to(p, { x: (Math.random() - 0.5) * 60, y: (Math.random() - 0.5) * 60, duration: 2 + Math.random(), ease: 'none', repeat: -1, yoyo: true });
-          }, i * 70);
-        }
-      });
+      document.getElementById('right-name').textContent = state.right.pet;
+      document.getElementById('right-img').src = rPet.image;
+      document.getElementById('right-val').textContent = rVal.toFixed(1);
 
-      card.addEventListener('mouseleave', () => {
-        isHovered = false;
-        card.style.setProperty('--glow-intensity', '0');
-        gsap.to(card, { rotateX: 0, rotateY: 0, x: 0, y: 0, duration: 0.4, ease: 'power2.out' });
-        particles.forEach(p => {
-          gsap.to(p, { scale: 0, opacity: 0, duration: 0.25, onComplete: () => p.remove() });
-        });
-        particles.length = 0;
-      });
+      const diff = rVal - lVal;
+      const box = document.getElementById('verdict-box');
+      const txt = document.getElementById('verdict-text');
+      const spread = document.getElementById('verdict-spread');
 
-      if (config.clickEffect) {
-        card.addEventListener('click', (e) => {
-          const rect = card.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          const maxDist = Math.max(rect.width, rect.height) * 1.5;
-          const glowCol = getComputedStyle(document.documentElement).getPropertyValue('--bento-glow-color').trim() || '40, 42, 50';
-          const ripple = document.createElement('div');
-          ripple.style.cssText = `position: absolute; width: ${maxDist}px; height: ${maxDist}px; border-radius: 50%; background: radial-gradient(circle, rgba(${glowCol}, 0.35) 0%, rgba(${glowCol}, 0.15) 35%, transparent 70%); left: ${x - maxDist / 2}px; top: ${y - maxDist / 2}px; pointer-events: none; z-index: 100;`;
-          card.appendChild(ripple);
-          gsap.fromTo(ripple, { scale: 0, opacity: 1 }, { scale: 1, opacity: 0, duration: 0.65, ease: 'power2.out', onComplete: () => ripple.remove() });
-        });
+      const percent = Math.round((diff / (lVal || 1)) * 100);
+
+      if (diff > 0.5) {
+        box.style.background = "var(--win-bg)"; box.style.color = "var(--win)";
+        txt.textContent = `WIN (+${diff.toFixed(1)})`; spread.textContent = `+${percent}%`;
+      } else if (diff < -0.5) {
+        box.style.background = "var(--lose-bg)"; box.style.color = "var(--lose)";
+        txt.textContent = `LOSE (${diff.toFixed(1)})`; spread.textContent = `${percent}%`;
+      } else {
+        box.style.background = "var(--fair-bg)"; box.style.color = "var(--fair)";
+        txt.textContent = `FAIR TRADE`; spread.textContent = `0%`;
       }
     }
 
-    function initAllBentoCards() {
-      document.querySelectorAll('.magic-bento-card').forEach(card => setupMagicBentoCard(card));
-    }
-
-    window.addEventListener('DOMContentLoaded', initAllBentoCards);
-
-    (() => {
-      const canvas = document.getElementById('click-spark-canvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const sparkConfig = { sparkSize: 12, sparkRadius: 28, sparkCount: 10, duration: 420, extraScale: 1.0 };
-      const sparks = [];
-      const resizeCanvas = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-      window.addEventListener('resize', resizeCanvas);
-      resizeCanvas();
-      const easeOut = t => t * (2 - t);
-      window.addEventListener('click', (e) => {
-        const x = e.clientX, y = e.clientY, now = performance.now();
-        for (let i = 0; i < sparkConfig.sparkCount; i++) {
-          sparks.push({ x, y, angle: (2 * Math.PI * i) / sparkConfig.sparkCount, startTime: now });
-        }
-      });
-      function draw(timestamp) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const currentSparkColor = getComputedStyle(document.documentElement).getPropertyValue('--spark-color').trim() || '#121316';
-        for (let i = sparks.length - 1; i >= 0; i--) {
-          const spark = sparks[i], elapsed = timestamp - spark.startTime;
-          if (elapsed >= sparkConfig.duration) { sparks.splice(i, 1); continue; }
-          const progress = elapsed / sparkConfig.duration, eased = easeOut(progress);
-          const distance = eased * sparkConfig.sparkRadius * sparkConfig.extraScale;
-          const lineLength = sparkConfig.sparkSize * (1 - eased);
-          const x1 = spark.x + distance * Math.cos(spark.angle), y1 = spark.y + distance * Math.sin(spark.angle);
-          const x2 = spark.x + (distance + lineLength) * Math.cos(spark.angle), y2 = spark.y + (distance + lineLength) * Math.sin(spark.angle);
-          ctx.strokeStyle = currentSparkColor; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-        }
-        requestAnimationFrame(draw);
-      }
-      requestAnimationFrame(draw);
-    })();
-
-    function initBlurDesc({ containerId = 'blurDescContainer', delayMs = 60, startDelay = 200 } = {}) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-      const rawText = container.getAttribute('data-text') || container.textContent.trim();
-      const words = rawText.split(' ');
-      container.innerHTML = '';
-      words.forEach((word, index) => {
-        const span = document.createElement('span');
-        span.className = 'blur-text-word';
-        span.textContent = word + (index < words.length - 1 ? '\u00A0' : '');
-        span.style.animationDelay = `${(startDelay + index * delayMs) / 1000}s`;
-        container.appendChild(span);
-      });
-      const observer = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting) {
-          container.querySelectorAll('.blur-text-word').forEach(s => s.classList.add('animate'));
-          observer.unobserve(container);
-        }
-      }, { threshold: 0.1 });
-      observer.observe(container);
-    }
-    initBlurDesc();
-
-    let PETS_DATABASE = [
-      { name: "Bat Dragon", image: "image pets/Bat Dragon.png", tier: "High-Tier Legendary", base: 943.0, reg: "943.00", neon: "2280.00", mega: "6500.00", demand: "High Demand 🔥" },
-      { name: "Shadow Dragon", image: "image pets/Shadow Dragon.png", tier: "High-Tier Legendary", base: 844.0, reg: "844.00", neon: "2022.00", mega: "5150.00", demand: "High Demand 🔥" },
-      { name: "Giraffe", image: "image pets/Giraffe.png", tier: "High-Tier Legendary", base: 475.0, reg: "475.00", neon: "1150.00", mega: "2900.00", demand: "Stable" },
-      { name: "Frost Dragon", image: "image pets/Frost Dragon.png", tier: "High-Tier Legendary", base: 326.0, reg: "326.00", neon: "790.00", mega: "1980.00", demand: "High Demand 🔥" },
-      { name: "Owl", image: "image pets/Owl.png", tier: "High-Tier Legendary", base: 246.5, reg: "246.50", neon: "603.00", mega: "1900.00", demand: "High Demand 🔥" },
-      { name: "Giant Panda", image: "image pets/Giant Panda.png", tier: "High-Tier Legendary", base: 220.0, reg: "220.00", neon: "535.00", mega: "1650.00", demand: "High Demand 🔥" },
-      { name: "Blazing Lion", image: "image pets/Blazing Lion.png", tier: "High-Tier Legendary", base: 202.0, reg: "202.00", neon: "490.00", mega: "1520.00", demand: "High Demand 🔥" },
-      { name: "Parrot", image: "image pets/Parrot.png", tier: "High-Tier Legendary", base: 196.5, reg: "196.50", neon: "480.00", mega: "1480.00", demand: "Stable" },
-      { name: "Crow", image: "image pets/Crow.png", tier: "High-Tier Legendary", base: 175.5, reg: "175.50", neon: "428.00", mega: "1320.00", demand: "Stable" },
-      { name: "Evil Unicorn", image: "image pets/Evil Unicorn.png", tier: "High-Tier Legendary", base: 109.0, reg: "109.00", neon: "265.00", mega: "820.00", demand: "Stable" },
-      { name: "Hot Doggo", image: "image pets/Hot Doggo.png", tier: "Legendary", base: 36.0, reg: "36.00", neon: "97.20", mega: "280.00", demand: "High Demand 🔥" },
-      { name: "Turtle", image: "image pets/Turtle.png", tier: "Legendary", base: 23.0, reg: "23.00", neon: "56.00", mega: "172.00", demand: "High Demand 🔥" }
-    ];
-
-    function renderPets(list) {
-      const container = document.getElementById('petsGrid');
-      container.innerHTML = '';
-      if (list.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 24px;">Питомец не найден.</div>';
-        return;
-      }
-      list.forEach(pet => {
+    function renderGrid(list) {
+      const grid = document.getElementById('petsGrid');
+      grid.innerHTML = '';
+      list.forEach(p => {
         const card = document.createElement('div');
-        card.className = 'pet-card-item magic-bento-card';
-        const isHigh = pet.demand && pet.demand.includes('High');
+        card.className = 'pet-card';
         card.innerHTML = `
-          <img class="pet-img" src="${pet.image}" alt="${pet.name}" onerror="this.src='https://api.iconify.design/noto:paw-prints.svg'" />
-          <div class="p-name">${pet.name}</div>
-          <div class="p-tier">${pet.tier}</div>
-          <div class="price-row"><span>Regular:</span> <b>${pet.reg}</b></div>
-          <div class="price-row"><span>Neon:</span> <b>${pet.neon}</b></div>
-          <div class="price-row"><span>Mega:</span> <b>${pet.mega}</b></div>
-          <span class="demand-tag ${isHigh ? 'demand-high' : 'demand-stable'}">${pet.demand}</span>
+          <img style="width: 54px; height: 54px; object-fit: contain; margin-bottom: 6px;" src="${p.image}" onerror="this.src='https://api.iconify.design/noto:paw-prints.svg'"/>
+          <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 4px;">${p.name}</div>
+          <div class="row"><span>Regular:</span> <b>${(p.shark_reg || 0).toFixed(1)}</b></div>
+          <div class="row"><span>Neon:</span> <b>${(p.shark_neon || 0).toFixed(1)}</b></div>
+          <div class="row"><span>Mega:</span> <b>${(p.shark_mega || 0).toFixed(1)}</b></div>
         `;
         card.onclick = () => {
-          selectRightPetByName(pet.name);
-          window.location.hash = '#calc';
+          state.right.pet = p.name;
+          calc();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         };
-        container.appendChild(card);
-        setupMagicBentoCard(card);
+        grid.appendChild(card);
       });
     }
 
-    function filterPets() {
-      const query = document.getElementById('petSearchInput').value.toLowerCase().trim();
-      const filtered = PETS_DATABASE.filter(p => p.name.toLowerCase().includes(query));
-      renderPets(filtered);
+    function filterGrid() {
+      const q = document.getElementById('search').value.toLowerCase();
+      renderGrid(PETS_DATABASE.filter(p => p.name.toLowerCase().includes(q)));
     }
 
     fetch('./pets-data.json?v=' + Date.now())
-      .then(res => res.json())
+      .then(r => r.json())
       .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          PETS_DATABASE = data;
-        }
-        renderPets(PETS_DATABASE);
-        calcValues();
-      })
-      .catch(() => {
-        renderPets(PETS_DATABASE);
-        calcValues();
+        PETS_DATABASE = data;
+        renderGrid(data);
+        calc();
       });
-
-    function toggleFaq(button) {
-      const item = button.parentElement;
-      const isOpen = item.classList.contains('active');
-      document.querySelectorAll('.faq-item').forEach(el => el.classList.remove('active'));
-      if (!isOpen) item.classList.add('active');
-    }
-
-    function toggleTheme() {
-      const html = document.documentElement;
-      const btn = document.getElementById('themeBtn');
-      if (html.getAttribute('data-theme') === 'dark') {
-        html.setAttribute('data-theme', 'light');
-        btn.textContent = '🌙';
-      } else {
-        html.setAttribute('data-theme', 'dark');
-        btn.textContent = '☀️';
-      }
-    }
-
-    const leftPets = [
-      { name: "Turtle", image: "image pets/Turtle.png" },
-      { name: "Frost Dragon", image: "image pets/Frost Dragon.png" },
-      { name: "Owl", image: "image pets/Owl.png" }
-    ];
-
-    const rightPets = [
-      { name: "Shadow Dragon", image: "image pets/Shadow Dragon.png" },
-      { name: "Hot Doggo", image: "image pets/Hot Doggo.png" },
-      { name: "Bat Dragon", image: "image pets/Bat Dragon.png" }
-    ];
-
-    let leftIdx = 0;
-    let rightIdx = 0;
-    const tradeState = {
-      left: { type: 'reg', fly: false, ride: false },
-      right: { type: 'neon', fly: false, ride: false }
-    };
-
-    function setTierType(side, type, btn) {
-      const parent = btn.parentElement;
-      Array.from(parent.children).forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      tradeState[side].type = type;
-      calcValues();
-    }
-
-    function toggleOption(side, opt) {
-      tradeState[side][opt] = !tradeState[side][opt];
-      const btn = document.getElementById(`${side}-${opt[0]}-btn`);
-      if (tradeState[side][opt]) btn.classList.add('active');
-      else btn.classList.remove('active');
-      calcValues();
-    }
-
-    function calcValues() {
-      const lPet = leftPets[leftIdx];
-      const rPet = rightPets[rightIdx];
-
-      const lData = PETS_DATABASE.find(p => p.name === lPet.name) || { base: 23, reg: "23.00", neon: "56.00", mega: "172.00" };
-      const rData = PETS_DATABASE.find(p => p.name === rPet.name) || { base: 844, reg: "844.00", neon: "2022.00", mega: "5150.00" };
-
-      let lVal = parseFloat(lData[tradeState.left.type] || lData.reg || lData.base);
-      let rVal = parseFloat(rData[tradeState.right.type] || rData.reg || rData.base);
-
-      if (tradeState.left.fly) lVal += 1.5;
-      if (tradeState.left.ride) lVal += 1.0;
-
-      if (tradeState.right.fly) rVal += 1.5;
-      if (tradeState.right.ride) rVal += 1.0;
-
-      const leftImg = document.getElementById('left-img');
-      leftImg.src = lPet.image;
-      document.getElementById('left-name').textContent = lPet.name;
-      document.getElementById('left-val').textContent = `Val: ${lVal.toFixed(2)}`;
-
-      const rightImg = document.getElementById('right-img');
-      rightImg.src = rPet.image;
-      document.getElementById('right-name').textContent = rPet.name;
-      document.getElementById('right-val').textContent = `Val: ${rVal.toFixed(2)}`;
-
-      const diff = rVal - lVal;
-      const spreadEl = document.getElementById('verdict-spread');
-      const labelEl = document.getElementById('verdict-label');
-      const box = document.getElementById('trade-verdict');
-      const percent = Math.round((diff / (lVal || 1)) * 100);
-
-      if (diff > 1.5) {
-        box.style.background = "var(--win-bg)"; box.style.color = "var(--win)";
-        labelEl.textContent = `WIN (+${diff.toFixed(2)})`; spreadEl.textContent = `+${percent}%`;
-      } else if (diff < -1.5) {
-        box.style.background = "var(--lose-bg)"; box.style.color = "var(--lose)";
-        labelEl.textContent = `LOSE (${diff.toFixed(2)})`; spreadEl.textContent = `${percent}%`;
-      } else {
-        box.style.background = "var(--fair-bg)"; box.style.color = "var(--fair)";
-        labelEl.textContent = `FAIR TRADE (~${diff.toFixed(2)})`; spreadEl.textContent = `0%`;
-      }
-    }
-
-    function selectRightPetByName(name) {
-      const p = PETS_DATABASE.find(x => x.name === name);
-      if (p) {
-        rightPets[rightIdx] = { name: p.name, image: p.image };
-        calcValues();
-      }
-    }
-
-    function cycleLeftPet() { leftIdx = (leftIdx + 1) % leftPets.length; calcValues(); }
-    function cycleRightPet() { rightIdx = (rightIdx + 1) % rightPets.length; calcValues(); }
-
-    calcValues();
-
-    const modal = document.getElementById('modal');
-    function openModal() { modal.classList.add('active'); }
-    function closeModal() { modal.classList.remove('active'); }
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
   </script>
 </body>
 </html>
