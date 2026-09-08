@@ -437,7 +437,7 @@
     <div class="mode-switch-group">
       <button class="btn-pill-black" style="padding: 12px 28px;">
         <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-        Shark Values Active
+        Elvebredd Official Data
       </button>
       <button class="btn-pill-white" style="padding: 12px 28px;" onclick="openModal()">
         <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-5H8l4-4 4 4h-3v5h-2z"/></svg>
@@ -455,7 +455,7 @@
       <div class="trade-container magic-bento-card" id="calc">
         <div class="trade-header">
           <span>Live Trade Simulation</span>
-          <span>● Synced Official</span>
+          <span>● 100% Synced</span>
         </div>
 
         <div class="trade-sides">
@@ -465,9 +465,9 @@
             <div class="pet-name" id="left-name">Frost Dragon</div>
 
             <div class="tier-toggle-row">
-              <button class="tier-btn" onclick="setTierType('left', 'reg', this)">REG</button>
-              <button class="tier-btn active" onclick="setTierType('left', 'neon', this)">NEON</button>
-              <button class="tier-btn" onclick="setTierType('left', 'mega', this)">MEGA</button>
+              <button class="tier-btn" onclick="setTierType('left', 'r', this)">REG</button>
+              <button class="tier-btn active" onclick="setTierType('left', 'n', this)">NEON</button>
+              <button class="tier-btn" onclick="setTierType('left', 'm', this)">MEGA</button>
             </div>
             <div class="tier-toggle-row">
               <button class="tier-btn" id="left-f-btn" onclick="toggleOption('left', 'fly')">F</button>
@@ -484,9 +484,9 @@
             <div class="pet-name" id="right-name">Shadow Dragon</div>
 
             <div class="tier-toggle-row">
-              <button class="tier-btn" onclick="setTierType('right', 'reg', this)">REG</button>
-              <button class="tier-btn active" onclick="setTierType('right', 'neon', this)">NEON</button>
-              <button class="tier-btn" onclick="setTierType('right', 'mega', this)">MEGA</button>
+              <button class="tier-btn" onclick="setTierType('right', 'r', this)">REG</button>
+              <button class="tier-btn active" onclick="setTierType('right', 'n', this)">NEON</button>
+              <button class="tier-btn" onclick="setTierType('right', 'm', this)">MEGA</button>
             </div>
             <div class="tier-toggle-row">
               <button class="tier-btn" id="right-f-btn" onclick="toggleOption('right', 'fly')">F</button>
@@ -704,21 +704,41 @@
     }
     initBlurDesc();
 
-    let PETS_DATABASE = [
-      { name: "Bat Dragon", image: "image pets/Bat Dragon.png", tier: "High-Tier Legendary", reg: 943.0, neon: 2280.0, mega: 6800.0, demand: "High Demand 🔥" },
-      { name: "Shadow Dragon", image: "image pets/Shadow Dragon.png", tier: "High-Tier Legendary", reg: 844.0, neon: 2022.0, mega: 8080.0, demand: "High Demand 🔥" },
-      { name: "Giraffe", image: "image pets/Giraffe.png", tier: "High-Tier Legendary", reg: 475.0, neon: 1150.0, mega: 3850.0, demand: "Stable" },
-      { name: "Frost Dragon", image: "image pets/Frost Dragon.png", tier: "High-Tier Legendary", reg: 326.0, neon: 612.5, mega: 2450.0, demand: "High Demand 🔥" },
-      { name: "Owl", image: "image pets/Owl.png", tier: "High-Tier Legendary", reg: 246.5, neon: 487.5, mega: 1950.0, demand: "High Demand 🔥" },
-      { name: "Giant Panda", image: "image pets/Giant Panda.png", tier: "High-Tier Legendary", reg: 220.0, neon: 535.0, mega: 1650.0, demand: "High Demand 🔥" },
-      { name: "Blazing Lion", image: "image pets/Blazing Lion.png", tier: "High-Tier Legendary", reg: 202.0, neon: 490.0, mega: 1520.0, demand: "High Demand 🔥" },
-      { name: "Parrot", image: "image pets/Parrot.png", tier: "High-Tier Legendary", reg: 196.5, neon: 387.5, mega: 1550.0, demand: "Stable" },
-      { name: "Crow", image: "image pets/Crow.png", tier: "High-Tier Legendary", reg: 175.5, neon: 337.5, mega: 1350.0, demand: "Stable" },
-      { name: "Evil Unicorn", image: "image pets/Evil Unicorn.png", tier: "High-Tier Legendary", reg: 109.0, neon: 272.0, mega: 840.0, demand: "Stable" },
-      { name: "Hot Doggo", image: "image pets/Hot Doggo.png", tier: "Legendary", reg: 36.0, neon: 90.0, mega: 360.0, demand: "High Demand 🔥" },
-      { name: "Turtle", image: "image pets/Turtle.png", tier: "Legendary", reg: 23.0, neon: 57.5, mega: 230.0, demand: "High Demand 🔥" },
-      { name: "Cow", image: "image pets/Cow.png", tier: "Rare", reg: 21.0, neon: 52.5, mega: 210.0, demand: "High Demand 🔥" }
-    ];
+    let PETS_DATABASE = [];
+
+    // Получение точного значения с учетом зелий и формы
+    function extractPetPrice(pet, tier, fly, ride) {
+      if (!pet) return 0;
+      
+      // Поддержка как оригинального JSON (rvalue - nopotion), так и очищенного (r_np)
+      let potionKey = 'np';
+      if (fly && ride) potionKey = 'fr';
+      else if (fly) potionKey = 'f';
+      else if (ride) potionKey = 'r';
+
+      // 1. Проверяем короткие ключи (r_np, n_np, m_np и т.д.)
+      const shortKey = `${tier}_${potionKey}`;
+      if (pet[shortKey] !== undefined) return parseFloat(pet[shortKey]);
+
+      // 2. Проверяем оригинальные длинные ключи Elvebredd
+      const prefix = tier === 'r' ? 'rvalue' : tier === 'n' ? 'nvalue' : 'mvalue';
+      const elvePotionMap = {
+        'np': `${prefix} - nopotion`,
+        'r': `${prefix} - ride`,
+        'f': `${prefix} - fly`,
+        'fr': `${prefix} - fly&ride`
+      };
+
+      const fullKey = elvePotionMap[potionKey];
+      if (pet[fullKey] !== undefined) return parseFloat(pet[fullKey]);
+
+      // Базовые фоллбэки
+      if (tier === 'r') return parseFloat(pet.rvalue || pet.reg || pet.base || 0);
+      if (tier === 'n') return parseFloat(pet.nvalue || pet.neon || 0);
+      if (tier === 'm') return parseFloat(pet.mvalue || pet.mega || 0);
+
+      return 0;
+    }
 
     function renderPets(list) {
       const container = document.getElementById('petsGrid');
@@ -731,14 +751,19 @@
         const card = document.createElement('div');
         card.className = 'pet-card-item magic-bento-card';
         const isHigh = pet.demand && pet.demand.includes('High');
+        
+        const regVal = extractPetPrice(pet, 'r', false, false);
+        const neonVal = extractPetPrice(pet, 'n', false, false);
+        const megaVal = extractPetPrice(pet, 'm', false, false);
+
         card.innerHTML = `
           <img class="pet-img" src="${pet.image}" alt="${pet.name}" onerror="this.src='https://api.iconify.design/noto:paw-prints.svg'" />
           <div class="p-name">${pet.name}</div>
-          <div class="p-tier">${pet.tier}</div>
-          <div class="price-row"><span>Regular:</span> <b>${Number(pet.reg).toFixed(2)}</b></div>
-          <div class="price-row"><span>Neon:</span> <b>${Number(pet.neon).toFixed(2)}</b></div>
-          <div class="price-row"><span>Mega:</span> <b>${Number(pet.mega).toFixed(2)}</b></div>
-          <span class="demand-tag ${isHigh ? 'demand-high' : 'demand-stable'}">${pet.demand}</span>
+          <div class="p-tier">${pet.tier || pet.rarity || 'Legendary'}</div>
+          <div class="price-row"><span>Regular:</span> <b>${regVal.toFixed(2)}</b></div>
+          <div class="price-row"><span>Neon:</span> <b>${neonVal.toFixed(2)}</b></div>
+          <div class="price-row"><span>Mega:</span> <b>${megaVal.toFixed(2)}</b></div>
+          <span class="demand-tag ${isHigh ? 'demand-high' : 'demand-stable'}">${pet.demand || 'High Demand 🔥'}</span>
         `;
         card.onclick = () => {
           selectRightPetByName(pet.name);
@@ -765,7 +790,6 @@
         calcValues();
       })
       .catch(() => {
-        renderPets(PETS_DATABASE);
         calcValues();
       });
 
@@ -803,8 +827,8 @@
     let leftIdx = 0;
     let rightIdx = 0;
     const tradeState = {
-      left: { type: 'neon', fly: false, ride: false },
-      right: { type: 'neon', fly: false, ride: false }
+      left: { type: 'n', fly: false, ride: false },
+      right: { type: 'n', fly: false, ride: false }
     };
 
     function setTierType(side, type, btn) {
@@ -827,26 +851,19 @@
       const lPet = leftPets[leftIdx];
       const rPet = rightPets[rightIdx];
 
-      const lData = PETS_DATABASE.find(p => p.name === lPet.name) || { reg: 326.0, neon: 612.5, mega: 2450.0 };
-      const rData = PETS_DATABASE.find(p => p.name === rPet.name) || { reg: 844.0, neon: 2022.0, mega: 8080.0 };
+      const lData = PETS_DATABASE.find(p => p.name === lPet.name);
+      const rData = PETS_DATABASE.find(p => p.name === rPet.name);
 
-      let lVal = parseFloat(lData[tradeState.left.type] || lData.reg || 0);
-      let rVal = parseFloat(rData[tradeState.right.type] || rData.reg || 0);
-
-      // Влияние зелий по Elvebredd Shark
-      if (tradeState.left.fly) lVal += 1.25;
-      if (tradeState.left.ride) lVal += 0.85;
-
-      if (tradeState.right.fly) rVal += 1.25;
-      if (tradeState.right.ride) rVal += 0.85;
+      const lVal = extractPetPrice(lData, tradeState.left.type, tradeState.left.fly, tradeState.left.ride);
+      const rVal = extractPetPrice(rData, tradeState.right.type, tradeState.right.fly, tradeState.right.ride);
 
       const leftImg = document.getElementById('left-img');
-      leftImg.src = lPet.image;
+      leftImg.src = lData?.image || lPet.image;
       document.getElementById('left-name').textContent = lPet.name;
       document.getElementById('left-val').textContent = lVal.toFixed(2);
 
       const rightImg = document.getElementById('right-img');
-      rightImg.src = rPet.image;
+      rightImg.src = rData?.image || rPet.image;
       document.getElementById('right-name').textContent = rPet.name;
       document.getElementById('right-val').textContent = rVal.toFixed(2);
 
