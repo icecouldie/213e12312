@@ -35,7 +35,6 @@
       --shiny-base: #18191D;
       --shiny-shine: #8C92A4;
       --spark-color: #121316;
-      --bento-glow-color: 40, 42, 50;
     }
 
     [data-theme="dark"] {
@@ -61,7 +60,6 @@
       --shiny-base: #8B949E;
       --shiny-shine: #FFFFFF;
       --spark-color: #FFFFFF;
-      --bento-glow-color: 132, 0, 255;
     }
 
     * {
@@ -94,18 +92,6 @@
     .magic-bento-card {
       position: relative;
       overflow: hidden;
-      contain: layout paint;
-    }
-
-    .bento-particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: rgba(var(--bento-glow-color), 1);
-      box-shadow: 0 0 8px rgba(var(--bento-glow-color), 0.7);
-      pointer-events: none;
-      z-index: 10;
     }
 
     .pet-img {
@@ -165,7 +151,6 @@
 
     .blur-text-word {
       display: inline-block;
-      will-change: transform, filter, opacity;
       opacity: 0;
       filter: blur(8px);
       transform: translateY(-16px);
@@ -327,7 +312,6 @@
       max-height: 600px;
       overflow-y: auto;
       padding-right: 6px;
-      contain: content;
     }
     .pets-grid::-webkit-scrollbar { width: 6px; }
     .pets-grid::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 10px; }
@@ -339,8 +323,6 @@
       padding: 16px;
       text-align: center;
       cursor: pointer;
-      content-visibility: auto;
-      contain-intrinsic-size: 210px 190px;
     }
     .pet-card-item:hover { transform: translateY(-2px); }
     .pet-card-item .p-name { font-weight: 800; font-size: 0.92rem; margin-bottom: 2px; }
@@ -533,21 +515,7 @@
   </footer>
 
   <script>
-    // Оптимизированный Bento Card (только для шапки и калькулятора, не для сотен карточек)
-    function setupMagicBentoCard(card) {
-      if (!card) return;
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        card.style.setProperty('--glow-x', `${(x / rect.width) * 100}%`);
-        card.style.setProperty('--glow-y', `${(y / rect.height) * 100}%`);
-      }, { passive: true });
-    }
-
-    document.querySelectorAll('.magic-bento-card').forEach(setupMagicBentoCard);
-
-    // Spark Canvas Click Effect
+    // Click Spark
     (() => {
       const canvas = document.getElementById('click-spark-canvas');
       if (!canvas) return;
@@ -587,7 +555,7 @@
       requestAnimationFrame(draw);
     })();
 
-    // Blur Text Init
+    // Blur Text
     (() => {
       const el = document.getElementById('blurDescContainer');
       if (!el) return;
@@ -602,39 +570,231 @@
       });
     })();
 
-    let PETS_DATABASE = [];
+    // Встроенный базовый список, чтобы при задержке сети сайт не оставался пустым
+    let PETS_DATABASE = [
+      {
+        name: "Bat Dragon",
+        image: "image pets/Bat Dragon.png",
+        tier: "High-Tier Legendary",
+        "rvalue - nopotion": 943,
+        "nvalue - nopotion": 2348.88,
+        "mvalue - nopotion": 7074,
+        "rvalue - fly&ride": 930,
+        "nvalue - fly&ride": 2185,
+        "mvalue - fly&ride": 6550,
+        demand: "High Demand 🔥"
+      },
+      {
+        name: "Shadow Dragon",
+        image: "image pets/Shadow Dragon.png",
+        tier: "High-Tier Legendary",
+        "rvalue - nopotion": 844,
+        "nvalue - nopotion": 2022,
+        "mvalue - nopotion": 5280,
+        "rvalue - fly&ride": 675,
+        "nvalue - fly&ride": 1348,
+        "mvalue - fly&ride": 3300,
+        demand: "High Demand 🔥"
+      },
+      {
+        name: "Giraffe",
+        image: "image pets/Giraffe.png",
+        tier: "High-Tier Legendary",
+        "rvalue - nopotion": 475,
+        "nvalue - nopotion": 1120,
+        "mvalue - nopotion": 4480,
+        "rvalue - fly&ride": 462,
+        "nvalue - fly&ride": 920,
+        "mvalue - fly&ride": 2890,
+        demand: "Stable"
+      },
+      {
+        name: "Frost Dragon",
+        image: "image pets/Frost Dragon.png",
+        tier: "High-Tier Legendary",
+        "rvalue - nopotion": 326,
+        "nvalue - nopotion": 612.5,
+        "mvalue - nopotion": 2450,
+        "rvalue - fly&ride": 313,
+        "nvalue - fly&ride": 552,
+        "mvalue - fly&ride": 1400,
+        demand: "High Demand 🔥"
+      },
+      {
+        name: "Owl",
+        image: "image pets/Owl.png",
+        tier: "High-Tier Legendary",
+        "rvalue - nopotion": 246.5,
+        "nvalue - nopotion": 648.23,
+        "mvalue - nopotion": 2325,
+        "rvalue - fly&ride": 243.5,
+        "nvalue - fly&ride": 603,
+        "mvalue - fly&ride": 1860,
+        demand: "High Demand 🔥"
+      },
+      {
+        name: "Giant Panda",
+        image: "image pets/Giant Panda.png",
+        tier: "Exotic",
+        "rvalue - nopotion": 220,
+        "nvalue - nopotion": 855,
+        "mvalue - nopotion": 3373,
+        "rvalue - fly&ride": 221,
+        "nvalue - fly&ride": 850,
+        "mvalue - fly&ride": 3300,
+        demand: "High Demand 🔥"
+      },
+      {
+        name: "Blazing Lion",
+        image: "image pets/Blazing Lion.png",
+        tier: "Exotic",
+        "rvalue - nopotion": 202,
+        "nvalue - nopotion": 798,
+        "mvalue - nopotion": 3352,
+        "rvalue - fly&ride": 201,
+        "nvalue - fly&ride": 790,
+        "mvalue - fly&ride": 3150,
+        demand: "High Demand 🔥"
+      },
+      {
+        name: "Parrot",
+        image: "image pets/Parrot.png",
+        tier: "High-Tier Legendary",
+        "rvalue - nopotion": 196.5,
+        "nvalue - nopotion": 487,
+        "mvalue - nopotion": 1948,
+        "rvalue - fly&ride": 194.5,
+        "nvalue - fly&ride": 396,
+        "mvalue - fly&ride": 1025,
+        demand: "Stable"
+      },
+      {
+        name: "Cryptid",
+        image: "image pets/Cryptid.png",
+        tier: "Exotic",
+        "rvalue - nopotion": 190,
+        "nvalue - nopotion": 528,
+        "mvalue - nopotion": 1693,
+        "rvalue - fly&ride": 192,
+        "nvalue - fly&ride": 530,
+        "mvalue - fly&ride": 1630,
+        demand: "High Demand 🔥"
+      },
+      {
+        name: "Crow",
+        image: "image pets/Crow.png",
+        tier: "High-Tier Legendary",
+        "rvalue - nopotion": 175.5,
+        "nvalue - nopotion": 425.25,
+        "mvalue - nopotion": 1701,
+        "rvalue - fly&ride": 174.5,
+        "nvalue - fly&ride": 400,
+        "mvalue - fly&ride": 1215,
+        demand: "Stable"
+      },
+      {
+        name: "Balloon Unicorn",
+        image: "image pets/Balloon Unicorn.png",
+        tier: "Exotic",
+        "rvalue - nopotion": 165,
+        "nvalue - nopotion": 565,
+        "mvalue - nopotion": 2240,
+        "rvalue - fly&ride": 167,
+        "nvalue - fly&ride": 560,
+        "mvalue - fly&ride": 2075,
+        demand: "High Demand 🔥"
+      },
+      {
+        name: "Evil Unicorn",
+        image: "image pets/Evil Unicorn.png",
+        tier: "Classy",
+        "rvalue - nopotion": 109,
+        "nvalue - nopotion": 250.25,
+        "mvalue - nopotion": 1001,
+        "rvalue - fly&ride": 109,
+        "nvalue - fly&ride": 200,
+        "mvalue - fly&ride": 715,
+        demand: "Stable"
+      },
+      {
+        name: "Hot Doggo",
+        image: "image pets/Hot Doggo.png",
+        tier: "Exotic",
+        "rvalue - nopotion": 36,
+        "nvalue - nopotion": 118,
+        "mvalue - nopotion": 445,
+        "rvalue - fly&ride": 37,
+        "nvalue - fly&ride": 120,
+        "mvalue - fly&ride": 438,
+        demand: "High Demand 🔥"
+      },
+      {
+        name: "Cow",
+        image: "image pets/Cow.png",
+        tier: "Classy",
+        "rvalue - nopotion": 33.75,
+        "nvalue - nopotion": 76.5,
+        "mvalue - nopotion": 250,
+        "rvalue - fly&ride": 36.25,
+        "nvalue - fly&ride": 77.5,
+        "mvalue - fly&ride": 220,
+        demand: "High Demand 🔥"
+      },
+      {
+        name: "Turtle",
+        image: "image pets/Turtle.png",
+        tier: "Classy",
+        "rvalue - nopotion": 23,
+        "nvalue - nopotion": 52,
+        "mvalue - nopotion": 215.25,
+        "rvalue - fly&ride": 25.5,
+        "nvalue - fly&ride": 51.5,
+        "mvalue - fly&ride": 123,
+        demand: "High Demand 🔥"
+      }
+    ];
+
     let currentRenderList = [];
     let renderedCount = 0;
     const PAGE_CHUNK = 28;
 
     function extractPetPrice(pet, tier, fly, ride) {
       if (!pet) return 0;
-      let potionKey = 'np';
-      if (fly && ride) potionKey = 'fr';
-      else if (fly) potionKey = 'f';
-      else if (ride) potionKey = 'r';
 
-      const shortKey = `${tier}_${potionKey}`;
-      if (pet[shortKey] !== undefined) return parseFloat(pet[shortKey]);
+      let pot = 'np';
+      if (fly && ride) pot = 'fr';
+      else if (fly) pot = 'f';
+      else if (ride) pot = 'r';
 
-      const prefix = tier === 'r' ? 'rvalue' : tier === 'n' ? 'nvalue' : 'mvalue';
-      const elvePotionMap = {
-        'np': `${prefix} - nopotion`,
-        'r': `${prefix} - ride`,
-        'f': `${prefix} - fly`,
-        'fr': `${prefix} - fly&ride`
+      const shortKey = `${tier}_${pot}`;
+      if (pet[shortKey] !== undefined && !isNaN(parseFloat(pet[shortKey]))) {
+        return parseFloat(pet[shortKey]);
+      }
+
+      const pfx = tier === 'r' ? 'rvalue' : tier === 'n' ? 'nvalue' : 'mvalue';
+      const map = {
+        'np': `${pfx} - nopotion`,
+        'r': `${pfx} - ride`,
+        'f': `${pfx} - fly`,
+        'fr': `${pfx} - fly&ride`
       };
 
-      const fullKey = elvePotionMap[potionKey];
-      if (pet[fullKey] !== undefined) return parseFloat(pet[fullKey]);
+      const key = map[pot];
+      if (pet[key] !== undefined && !isNaN(parseFloat(pet[key]))) {
+        return parseFloat(pet[key]);
+      }
 
-      if (tier === 'r') return parseFloat(pet.rvalue || pet.reg || pet.base || 0);
-      if (tier === 'n') return parseFloat(pet.nvalue || pet.neon || 0);
-      if (tier === 'm') return parseFloat(pet.mvalue || pet.mega || 0);
+      if (pet[pfx] !== undefined && !isNaN(parseFloat(pet[pfx]))) {
+        return parseFloat(pet[pfx]);
+      }
+
+      if (tier === 'r' && pet.reg !== undefined) return parseFloat(pet.reg);
+      if (tier === 'n' && pet.neon !== undefined) return parseFloat(pet.neon);
+      if (tier === 'm' && pet.mega !== undefined) return parseFloat(pet.mega);
+
       return 0;
     }
 
-    // Ленивая подгрузка карточек для максимальной скорости
     function appendMorePets() {
       if (renderedCount >= currentRenderList.length) return;
       const container = document.getElementById('petsGrid');
@@ -645,13 +805,15 @@
         const card = document.createElement('div');
         card.className = 'pet-card-item';
         const isHigh = pet.demand && String(pet.demand).includes('High');
-        
+
         const regVal = extractPetPrice(pet, 'r', false, false);
         const neonVal = extractPetPrice(pet, 'n', false, false);
         const megaVal = extractPetPrice(pet, 'm', false, false);
 
+        const imgSrc = pet.image ? (pet.image.startsWith('/') ? pet.image.slice(1) : pet.image) : `image pets/${pet.name}.png`;
+
         card.innerHTML = `
-          <img class="pet-img" src="${pet.image}" alt="${pet.name}" loading="lazy" decoding="async" onerror="this.src='https://api.iconify.design/noto:paw-prints.svg'" />
+          <img class="pet-img" src="${imgSrc}" alt="${pet.name}" loading="lazy" decoding="async" onerror="this.src='https://api.iconify.design/noto:paw-prints.svg'" />
           <div class="p-name">${pet.name}</div>
           <div class="p-tier">${pet.tier || pet.rarity || 'Legendary'}</div>
           <div class="price-row"><span>Regular:</span> <b>${regVal.toFixed(2)}</b></div>
@@ -682,7 +844,6 @@
       appendMorePets();
     }
 
-    // Бесконечный скролл внутри сетки
     const gridEl = document.getElementById('petsGrid');
     gridEl.addEventListener('scroll', () => {
       if (gridEl.scrollTop + gridEl.clientHeight >= gridEl.scrollHeight - 180) {
@@ -690,7 +851,6 @@
       }
     }, { passive: true });
 
-    // Поиск с debounce (устраняет зависание при вводе букв)
     let searchTimeout = null;
     function onSearchInput(val) {
       clearTimeout(searchTimeout);
@@ -701,14 +861,21 @@
       }, 100);
     }
 
+    // Инициализация отображения из базового списка
+    resetAndRender(PETS_DATABASE);
+
+    // Загрузка обновлений из pets-data.json
     fetch('./pets-data.json?v=' + Date.now())
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Network error');
+        return res.json();
+      })
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
           PETS_DATABASE = data;
+          resetAndRender(PETS_DATABASE);
+          calcValues();
         }
-        resetAndRender(PETS_DATABASE);
-        calcValues();
       })
       .catch(() => {
         calcValues();
@@ -771,11 +938,14 @@
       const lVal = extractPetPrice(lData, tradeState.left.type, tradeState.left.fly, tradeState.left.ride);
       const rVal = extractPetPrice(rData, tradeState.right.type, tradeState.right.fly, tradeState.right.ride);
 
-      document.getElementById('left-img').src = lData?.image || lPet.image;
+      const lImgSrc = lData?.image ? (lData.image.startsWith('/') ? lData.image.slice(1) : lData.image) : lPet.image;
+      const rImgSrc = rData?.image ? (rData.image.startsWith('/') ? rData.image.slice(1) : rData.image) : rPet.image;
+
+      document.getElementById('left-img').src = lImgSrc;
       document.getElementById('left-name').textContent = lPet.name;
       document.getElementById('left-val').textContent = lVal.toFixed(2);
 
-      document.getElementById('right-img').src = rData?.image || rPet.image;
+      document.getElementById('right-img').src = rImgSrc;
       document.getElementById('right-name').textContent = rPet.name;
       document.getElementById('right-val').textContent = rVal.toFixed(2);
 
@@ -807,6 +977,8 @@
 
     function cycleLeftPet() { leftIdx = (leftIdx + 1) % leftPets.length; calcValues(); }
     function cycleRightPet() { rightIdx = (rightIdx + 1) % rightPets.length; calcValues(); }
+
+    calcValues();
 
     const modal = document.getElementById('modal');
     function openModal() { modal.classList.add('active'); }
